@@ -1,0 +1,37 @@
+---
+
+all:
+
+  children:
+
+    prod:
+      children:
+        prod1:
+        prod2:
+
+    prod1:
+      children:
+        denver:
+
+    prod2:
+      children:
+        phoenix:
+
+    corp:
+      children:
+        los-angeles:
+
+    denver:
+      hosts:
+        db[0:9].dnv.example.com:
+        web[0:9].dnv.example.com:
+
+    phoenix:
+      hosts:
+        db[0:9].phx.example.com:
+        web[0:9].phx.example.com:
+
+    los-angeles:
+      hosts:
+        db[0:9].lax.example.com:
+        web[0:9].lax.example.com:

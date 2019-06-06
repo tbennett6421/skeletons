@@ -1,0 +1,4 @@
+---
+https_port: 443
+load_balancer: rr.dal.tx.example.com
+application_port: 9200

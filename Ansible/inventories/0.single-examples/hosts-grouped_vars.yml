@@ -1,0 +1,23 @@
+---
+
+all:
+
+  children:
+
+    austin:
+      hosts:
+        www[01:02].aus.tx.example.com:
+        ns[01:02].aus.tx.example.com:
+      vars:
+        https_port: 443
+        load_balancer: rr.aus.tx.example.com
+        application_port: 9200
+
+    dallas:
+      hosts:
+        www[01:02].dal.tx.example.com:
+        ns[01:02].dal.tx.example.com:
+      vars:
+        https_port: 443
+        load_balancer: rr.dal.tx.example.com
+        application_port: 5601

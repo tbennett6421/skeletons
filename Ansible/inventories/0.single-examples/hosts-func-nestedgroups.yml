@@ -1,0 +1,31 @@
+---
+
+all:
+
+  children:
+
+    supporting-infrastructure:
+      hosts:
+        ns1.example.com:
+        ns2.example.com:
+        waf.example.com:
+        cdn.example.com:
+        rr.example.com:
+
+    web-frontend:
+      hosts:
+        www[01:10].example.com:
+        www[01:05].dallas.example.com:
+        www[01:05].seattle.example.com:
+
+    web-backend:
+      hosts:
+        db[01:10].example.com:
+        db[01:05].dallas.example.com:
+        db[01:05].seattle.example.com:
+
+    web-presence:
+      children:
+        supporting-infrastructure:
+        web-frontend:
+        web-backend:
