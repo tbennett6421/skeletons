@@ -7,3 +7,6 @@
 
 - include: install-domain-controller.yml
   tags: [install]
+
+- include: demo-users.yml
+  tags: [configure, demo]

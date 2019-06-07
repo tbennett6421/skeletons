@@ -1,2 +1,37 @@
 ---
-# vars file
+default_password: Changeme123
+org: "Google"
+org_tld: "google.com"
+domain_users:
+  - alice
+  - bob
+  - charlie
+  - david
+  - eve
+  - faith
+  - grace
+  - heather
+  - isaac
+  - judy
+  - kristin
+  - lando
+  - mike
+  - newton
+  - oliver
+  - penny
+  - ralph
+  - sam
+  - travis
+  - victor
+  - william
+  - xavier
+profession:
+  - sacred cash cow tipper
+  - security guru
+  - ui/ux designer
+  - executive
+  - security analyst
+  - security engineer
+  - devops engineer
+  - frontend dev
+  - backend dev

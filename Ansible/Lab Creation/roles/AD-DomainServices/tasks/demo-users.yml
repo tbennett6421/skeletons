@@ -1,0 +1,21 @@
+- name: Generate sample users
+  win_domain_user:
+    name: "{{ item }}"
+    password: "{{ default_password }}"
+    state: present
+    password_never_expires: yes
+    user_cannot_change_password: yes
+    firstname: "{{ item |capitalize }}"
+    company: "{{org}}"
+    street: 123 4th St.
+    city: Jacksonville
+    state_province: FL
+    postal_code: 12345
+    country: US
+    description: "{{ profession |random }}"
+    email: "{{ item }}@{{ ord_tld }}"
+    attributes:
+        telephoneNumber: 555-123-4567
+  register: user
+  with_items:
+     "{{ domain_users }}"
