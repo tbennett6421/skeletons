@@ -1,2 +1,4 @@
 ---
-## tasks file
+- include: fresh-image.yml
+  tags: [init]
+
