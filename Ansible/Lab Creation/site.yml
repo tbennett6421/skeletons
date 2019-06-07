@@ -1,0 +1,7 @@
+---
+- hosts: domain-controllers
+  gather_facts: true
+  tasks:
+    - setup:
+  roles:
+    - AD-DomainServices
