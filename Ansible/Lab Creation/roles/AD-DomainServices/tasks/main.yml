@@ -2,3 +2,8 @@
 - include: fresh-image.yml
   tags: [init]
 
+- include: install-dns-server.yml
+  tags: [install]
+
+- include: install-domain-controller.yml
+  tags: [install]

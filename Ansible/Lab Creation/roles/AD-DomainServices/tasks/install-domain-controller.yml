@@ -1,0 +1,21 @@
+- name: Add machine as a domain controller, create forest if not exist
+  block:
+    - name: Ensure a server is a domain controller
+      win_domain_controller:
+        dns_domain_name: "{{ domain }}"
+        domain_admin_user: Administrator@{{ domain }}
+        domain_admin_password: Password1
+        safe_mode_password: Password1
+        state: domain_controller
+      register: domain_install
+      notify: reboot windows
+  rescue:
+    - name: Create a forest
+      win_domain:
+        dns_domain_name: "{{ domain }}"
+        domain_netbios_name: "{{ nb_domain }}"
+        domain_mode: Win2012R2
+        forest_mode: Win2012R2
+        safe_mode_password: Password1
+      register: domain_install
+      notify: reboot windows
