@@ -12,3 +12,10 @@
     - setup:
   roles:
     - AD-DomainServices
+
+- hosts: workstations
+  gather_facts: true
+  tasks:
+    - setup:
+  roles:
+    - AD-Workstation
