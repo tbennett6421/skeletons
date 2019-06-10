@@ -76,3 +76,22 @@
   register: user
   with_items:
      "{{ service_account_users }}"
+
+# win_domain_group_membership requires ansible 2.8
+- name: manage manager membership
+  win_domain_group_membership:
+    name: Managers
+    members:
+      - charlie
+      - mike
+      - heather
+      - sam
+    state: pure
+
+- name: manage executive membership
+  win_domain_group_membership:
+    name: Executives
+    members:
+      - victor
+      - xavier
+    state: pure
