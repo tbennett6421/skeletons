@@ -5,6 +5,9 @@
   register: hostname_result
   notify: reboot windows
 
+- name: force reboot on name change prior to AD role install
+  meta: flush_handlers
+
 ## Setup dns for ad-ds
 - name: Set loopback addresses on all visible adapters (usually physical adapters that are in the Up state)
   win_dns_client:

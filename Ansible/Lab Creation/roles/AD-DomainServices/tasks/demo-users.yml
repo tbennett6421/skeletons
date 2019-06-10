@@ -13,7 +13,7 @@
     postal_code: 12345
     country: US
     description: "{{ profession |random }}"
-    email: "{{ item }}@{{ ord_tld }}"
+    email: "{{ item }}@{{ org_tld }}"
     attributes:
         telephoneNumber: 555-123-4567
   register: user
@@ -28,7 +28,7 @@
     password_never_expires: yes
     user_cannot_change_password: yes
     description: "{{ item }} service account"
-    email: "{{ item }}@{{ ord_tld }}"
+    email: "{{ item }}@{{ org_tld }}"
   register: user
   with_items:
      "{{ service_account_users }}"
