@@ -25,11 +25,14 @@ domain_users:
   - victor
   - william
   - xavier
+service_account_users:
+  - git
+  - jira
+  - jenkins
 profession:
   - sacred cash cow tipper
   - security guru
   - ui/ux designer
-  - executive
   - security analyst
   - security engineer
   - devops engineer

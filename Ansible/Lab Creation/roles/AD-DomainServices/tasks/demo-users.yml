@@ -19,3 +19,16 @@
   register: user
   with_items:
      "{{ domain_users }}"
+
+- name: Generate sample service accounts
+  win_domain_user:
+    name: "{{ item }}"
+    password: "{{ default_password }}"
+    state: present
+    password_never_expires: yes
+    user_cannot_change_password: yes
+    description: "{{ item }} service account"
+    email: "{{ item }}@{{ ord_tld }}"
+  register: user
+  with_items:
+     "{{ service_account_users }}"
