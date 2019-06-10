@@ -3,7 +3,12 @@ all:
 
   vars:
     default_password: Changeme123
-    dc1_addr: 192.168.1.10
+    # Alt username is used for Client OS's (7,8,10)
+    alternative_username: Owner
+    default_username: Administrator
+    dc1_addr: a.b.c.d
+    wks1_addr: a.b.c.d
+    wks2_addr: a.b.c.d
 
     domain_name: ansible
     domain_tld: lab
@@ -18,12 +23,30 @@ all:
     windows:
       children:
         domain_controllers:
+        workstations:
 
     domain_controllers:
       hosts:
         dc1:
-          ansible_user: Administrator
-          ansible_password: Changeme123
+          ansible_user: "{{default_username}}"
+          ansible_password: "{{default_password}}"
           ansible_connection: winrm
           ansible_host: "{{dc1_addr}}"
           ansible_winrm_server_cert_validation: ignore
+
+    workstations:
+      hosts:
+        wks1:
+          ansible_user: "{{alternative_name"
+          ansible_password: "{default_password}}"
+          ansible_connection: winrm
+          ansible_host: "{{wks1_addr}}"
+          ansible_winrm_server_cert_validation: ignore
+          os: windows 10
+        wks2:
+          ansible_user: "{{alternative_name"
+          ansible_password: "{default_password}}"
+          ansible_connection: winrm
+          ansible_host: "{{wks2_addr}}"
+          ansible_winrm_server_cert_validation: ignore
+          os: windows 7
