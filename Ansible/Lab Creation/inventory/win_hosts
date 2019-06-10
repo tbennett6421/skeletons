@@ -2,8 +2,14 @@
 
 all:
 
-  children:
+  vars:
+    nb_domain: ANSIBLE
+    domain: ansible.lab
+    default_password: Changeme123
+    org: "Google"
+    org_tld: "google.com"
 
+  children:
     windows:
       children:
         domain_controllers:
@@ -16,7 +22,3 @@ all:
           ansible_connection: winrm
           ansible_host: 192.168.1.10
           ansible_winrm_server_cert_validation: ignore
-
-      vars:
-        nb_domain: ANSIBLE
-        domain: ansible.lab
