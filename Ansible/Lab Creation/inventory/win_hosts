@@ -1,13 +1,13 @@
 ---
-
 all:
 
   vars:
+    dc1_addr: 192.168.1.10
     nb_domain: ANSIBLE
     domain: ansible.lab
-    default_password: Changeme123
     org: "Google"
     org_tld: "google.com"
+    default_password: Changeme123
 
   children:
     windows:
@@ -20,5 +20,5 @@ all:
           ansible_user: Administrator
           ansible_password: Changeme123
           ansible_connection: winrm
-          ansible_host: 192.168.1.10
+          ansible_host: "{{dc1_addr}}"
           ansible_winrm_server_cert_validation: ignore
