@@ -2,12 +2,17 @@
 all:
 
   vars:
+    default_password: Changeme123
     dc1_addr: 192.168.1.10
+
+    domain_name: ansible
+    domain_tld: lab
+    domain: "{{domain_name}}.{{domain_tld}}"
+    ldap_root: "DC={{domain_name}},DC={{domain_tld}}"
     nb_domain: ANSIBLE
-    domain: ansible.lab
+
     org: "Google"
     org_tld: "google.com"
-    default_password: Changeme123
 
   children:
     windows:

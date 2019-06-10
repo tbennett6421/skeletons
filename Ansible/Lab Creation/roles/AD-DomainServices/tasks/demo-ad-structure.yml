@@ -1,47 +1,47 @@
 - name: Create sample org ou
   win_command: powershell.exe -
   args:
-    stdin: New-ADOrganizationalUnit -Name "{{org}}" -Path "DC=ansible,DC=lab"
+    stdin: New-ADOrganizationalUnit -Name "{{org}}" -Path "{{ldap_root}}"
   failed_when: false
 
 - name: Create sample org user-root
   win_command: powershell.exe -
   args:
-    stdin: New-ADOrganizationalUnit -Name "Accounts" -Path "OU={{org}},DC=ansible,DC=lab"
+    stdin: New-ADOrganizationalUnit -Name "Accounts" -Path "OU={{org}},{{ldap_root}}"
   failed_when: false
 
 - name: Create sample org computer-root
   win_command: powershell.exe -
   args:
-    stdin: New-ADOrganizationalUnit -Name "Machines" -Path "OU={{org}},DC=ansible,DC=lab"
+    stdin: New-ADOrganizationalUnit -Name "Machines" -Path "OU={{org}},{{ldap_root}}"
   failed_when: false
 
 - name: Create sample org service accounts
   win_command: powershell.exe -
   args:
-    stdin: New-ADOrganizationalUnit -Name "Service Accounts" -Path "OU=Accounts,OU={{org}},DC=ansible,DC=lab"
+    stdin: New-ADOrganizationalUnit -Name "Service Accounts" -Path "OU=Accounts,OU={{org}},{{ldap_root}}"
   failed_when: false
 
 - name: Create sample org group ou
   win_command: powershell.exe -
   args:
-    stdin: New-ADOrganizationalUnit -Name "Groups" -Path "OU=Accounts,OU={{org}},DC=ansible,DC=lab"
+    stdin: New-ADOrganizationalUnit -Name "Groups" -Path "OU=Accounts,OU={{org}},{{ldap_root}}"
   failed_when: false
 
 - name: Create sample org user accounts
   win_command: powershell.exe -
   args:
-    stdin: New-ADOrganizationalUnit -Name "User Accounts" -Path "OU=Accounts,OU={{org}},DC=ansible,DC=lab"
+    stdin: New-ADOrganizationalUnit -Name "User Accounts" -Path "OU=Accounts,OU={{org}},{{ldap_root}}"
   failed_when: false
 
 - name: Create sample org servers
   win_command: powershell.exe -
   args:
-    stdin: New-ADOrganizationalUnit -Name "Servers" -Path "OU=Machines,OU={{org}},DC=ansible,DC=lab"
+    stdin: New-ADOrganizationalUnit -Name "Servers" -Path "OU=Machines,OU={{org}},{{ldap_root}}"
   failed_when: false
 
 - name: Create sample org workstations
   win_command: powershell.exe -
   args:
-    stdin: New-ADOrganizationalUnit -Name "Workstations" -Path "OU=Machines,OU={{org}},DC=ansible,DC=lab"
+    stdin: New-ADOrganizationalUnit -Name "Workstations" -Path "OU=Machines,OU={{org}},{{ldap_root}}"
   failed_when: false

@@ -1,0 +1,22 @@
+## Setup dns for ad-ds
+- name: Set dns addresses on all visible adapters (usually physical adapters that are in the Up state)
+  win_dns_client:
+    adapter_names: '*'
+    ipv4_addresses:
+      - "{{dc1_addr}}"
+
+# host should be a member of domain ansible.vagrant; module will ensure the hostname is mydomainclient
+# and will use the passed credentials to join domain if necessary.
+# If a reboot is required, the second task will trigger one and wait until the host is available.
+- name: Join the lab domain
+  - win_domain_membership:
+      dns_domain_name: "{{ domain }}"
+      hostname: "{{ inventory_hostname }}"
+      domain_admin_user: Administrator@{{domain}}
+      domain_admin_password: "{{ default_password }}"
+      domain_ou_path: "OU=Workstations,OU=Machines,{{ldap_root}}"
+      state: domain
+    register: domain_state
+
+  - win_reboot:
+    when: domain_state.reboot_required

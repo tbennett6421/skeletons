@@ -1,0 +1,3 @@
+---
+- include: host-init.yml
+  tags: [init]

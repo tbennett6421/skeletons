@@ -4,7 +4,7 @@
     scope: global
     category: security
     protect: yes
-    organizational_unit: "OU=Groups,OU=Accounts,OU={{org}},DC=Ansible,DC=lab"
+    organizational_unit: "OU=Groups,OU=Accounts,OU={{org}},{{ldap_root}}"
     attributes:
       mail: "All-Employees@{{org_tld}}"
 
@@ -14,7 +14,7 @@
     scope: global
     category: security
     protect: yes
-    organizational_unit: "OU=Groups,OU=Accounts,OU={{org}},DC=Ansible,DC=lab"
+    organizational_unit: "OU=Groups,OU=Accounts,OU={{org}},{{ldap_root}}"
 
 - name: Create manager group
   win_domain_group:
@@ -22,7 +22,7 @@
     scope: global
     category: security
     protect: yes
-    organizational_unit: "OU=Groups,OU=Accounts,OU={{org}},DC=Ansible,DC=lab"
+    organizational_unit: "OU=Groups,OU=Accounts,OU={{org}},{{ldap_root}}"
     attributes:
       mail: "All-Managers@{{org_tld}}"
 
@@ -32,7 +32,7 @@
     scope: global
     category: security
     protect: yes
-    organizational_unit: "OU=Groups,OU=Accounts,OU={{org}},DC=Ansible,DC=lab"
+    organizational_unit: "OU=Groups,OU=Accounts,OU={{org}},{{ldap_root}}"
     attributes:
       mail: "All-Executives@{{org_tld}}"
 
@@ -40,7 +40,7 @@
   win_domain_user:
     name: "{{ item }}"
     password: "{{ default_password }}"
-    path: "OU=User Accounts,OU=Accounts,OU={{org}},DC=Ansible,DC=lab"
+    path: "OU=User Accounts,OU=Accounts,OU={{org}},{{ldap_root}}"
     groups_action: add
     groups: Employees
     state: present
@@ -65,7 +65,7 @@
   win_domain_user:
     name: "{{ item }}"
     password: "{{ default_password }}"
-    path: "OU=Service Accounts,OU=Accounts,OU={{org}},DC=Ansible,DC=lab"
+    path: "OU=Service Accounts,OU=Accounts,OU={{org}},{{ldap_root}}"
     groups_action: add
     groups: Service Accounts
     state: present
