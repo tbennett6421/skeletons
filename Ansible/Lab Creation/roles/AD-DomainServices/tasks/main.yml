@@ -1,5 +1,5 @@
 ---
-- include: fresh-image.yml
+- include: host-init.yml
   tags: [init]
 
 - include: install-dns-server.yml
