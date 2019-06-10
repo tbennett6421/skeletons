@@ -1,0 +1,8 @@
+- name: Set a hostname on the target
+  win_hostname:
+    name: "{{ inventory_hostname }}"
+  register: hostname_result
+  notify: reboot windows
+
+- name: force reboot on name changes
+  meta: flush_handlers

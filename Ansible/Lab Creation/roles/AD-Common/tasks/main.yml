@@ -1,0 +1,9 @@
+---
+- include: host-init.yml
+  tags: [init]
+
+- include: firewall-config.yml
+  tags: [init]
+
+- include: install-chocolatey.yml
+  tags: [init]

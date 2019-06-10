@@ -1,4 +1,11 @@
 ---
+- hosts: all
+  gather_facts: true
+  tasks:
+    - setup:
+  roles:
+    - AD-Common
+
 - hosts: domain_controllers
   gather_facts: true
   tasks:

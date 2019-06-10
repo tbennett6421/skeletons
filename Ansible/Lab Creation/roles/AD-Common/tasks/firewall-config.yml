@@ -1,0 +1,37 @@
+## Setup Firewall Rules
+- name: fw - allow winrm inbound
+  win_firewall_rule:
+    name: "allow winrm"
+    localport: 5985
+    action: allow
+    direction: in
+    protocol: tcp
+    state: present
+    enabled: yes
+
+- name: fw - allow winrms inbound
+  win_firewall_rule:
+    name: "allow winrm(s)"
+    localport: 5985
+    action: allow
+    direction: in
+    protocol: tcp
+    state: present
+    enabled: yes
+
+- name: fw - allow rdp
+  win_firewall_rule:
+    name: "allow remote desktop"
+    localport: 3389
+    action: allow
+    direction: in
+    protocol: tcp
+    state: present
+    enabled: yes
+
+  #########################################################################
+  ## "win_firewall requires Windows Management Framework 5 or higher."
+  #########################################################################
+  # - name: Enable all firewalls
+  # win_firewall:
+  #   state: enabled
