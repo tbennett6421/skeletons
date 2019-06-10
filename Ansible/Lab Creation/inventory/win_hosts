@@ -6,9 +6,9 @@ all:
 
     windows:
       children:
-        domain-controllers:
+        domain_controllers:
 
-    domain-controllers:
+    domain_controllers:
       hosts:
         dc1:
           ansible_user: Administrator

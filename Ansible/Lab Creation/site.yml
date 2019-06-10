@@ -1,5 +1,5 @@
 ---
-- hosts: domain-controllers
+- hosts: domain_controllers
   gather_facts: true
   tasks:
     - setup:
