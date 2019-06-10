@@ -1,7 +1,48 @@
+- name: Create employee group
+  win_domain_group:
+    name: Employees
+    scope: global
+    category: security
+    protect: yes
+    organizational_unit: "OU=Groups,OU=Accounts,OU={{org}},DC=Ansible,DC=lab"
+    attributes:
+      mail: "All-Employees@{{org_tld}}"
+
+- name: Create service group
+  win_domain_group:
+    name: Service Accounts
+    scope: global
+    category: security
+    protect: yes
+    organizational_unit: "OU=Groups,OU=Accounts,OU={{org}},DC=Ansible,DC=lab"
+
+- name: Create manager group
+  win_domain_group:
+    name: Managers
+    scope: global
+    category: security
+    protect: yes
+    organizational_unit: "OU=Groups,OU=Accounts,OU={{org}},DC=Ansible,DC=lab"
+    attributes:
+      mail: "All-Managers@{{org_tld}}"
+
+- name: Create executive group
+  win_domain_group:
+    name: Executives
+    scope: global
+    category: security
+    protect: yes
+    organizational_unit: "OU=Groups,OU=Accounts,OU={{org}},DC=Ansible,DC=lab"
+    attributes:
+      mail: "All-Executives@{{org_tld}}"
+
 - name: Generate sample users
   win_domain_user:
     name: "{{ item }}"
     password: "{{ default_password }}"
+    path: "OU=User Accounts,OU=Accounts,OU={{org}},DC=Ansible,DC=lab"
+    groups_action: add
+    groups: Employees
     state: present
     password_never_expires: yes
     user_cannot_change_password: yes
@@ -24,6 +65,9 @@
   win_domain_user:
     name: "{{ item }}"
     password: "{{ default_password }}"
+    path: "OU=Service Accounts,OU=Accounts,OU={{org}},DC=Ansible,DC=lab"
+    groups_action: add
+    groups: Service Accounts
     state: present
     password_never_expires: yes
     user_cannot_change_password: yes
