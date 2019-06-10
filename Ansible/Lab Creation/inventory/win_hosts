@@ -37,15 +37,15 @@ all:
     workstations:
       hosts:
         wks1:
-          ansible_user: "{{alternative_name"
-          ansible_password: "{default_password}}"
+          ansible_user: "{{alternative_username}}"
+          ansible_password: "{{default_password}}"
           ansible_connection: winrm
           ansible_host: "{{wks1_addr}}"
           ansible_winrm_server_cert_validation: ignore
           os: windows 10
         wks2:
-          ansible_user: "{{alternative_name"
-          ansible_password: "{default_password}}"
+          ansible_user: "{{alternative_username}}"
+          ansible_password: "{{default_password}}"
           ansible_connection: winrm
           ansible_host: "{{wks2_addr}}"
           ansible_winrm_server_cert_validation: ignore
