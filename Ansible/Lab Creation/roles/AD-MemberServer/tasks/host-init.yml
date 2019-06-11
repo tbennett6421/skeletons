@@ -15,7 +15,7 @@
     domain_admin_user: Administrator@{{domain}}
     domain_admin_password: "{{ default_password }}"
     #https://github.com/ansible/ansible/issues/57313#issuecomment-500615547
-    #domain_ou_path: "OU=Workstations,OU=Machines,{{ldap_root}}"
+    #domain_ou_path: "OU=Servers,OU=Machines,{{ldap_root}}"
     state: domain
   register: domain_state
   notify: reboot windows
