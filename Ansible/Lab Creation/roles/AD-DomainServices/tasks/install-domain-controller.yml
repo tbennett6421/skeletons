@@ -19,3 +19,6 @@
         safe_mode_password: "{{ default_password }}"
       register: domain_install
       notify: reboot windows
+
+- name: force reboot on role installation
+  meta: flush_handlers
