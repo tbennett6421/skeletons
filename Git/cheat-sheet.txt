@@ -55,13 +55,7 @@ git checkout -- [file]
 # write staged changes to tree
 git commit
 
-# Stash changes
-git stash save
-
-# Apply changes
-git stash pop
-
-##Git Branches
+## Git Branches
 ##--------------------
 # Lists all local branches
 git branch
@@ -74,3 +68,34 @@ git checkout [branch-name]
 
 ## Checkout remote branch, create local branch, and set tracking
 git checkout -b develop origin/develop
+
+$ git logLists version history for the current branch$ git log --follow [file]Lists version history for a file, including renames$ git diff [first-branch]...[second-branch]Shows content differences between two branches$ git show [commit]Outputs metadata and content changes of the specified comm
+
+
+## Fragments
+##--------------------
+# Stash changes
+git stash save
+
+# Apply changes
+git stash pop
+
+# list all stashs
+git stash list
+
+# discard the most recent stash
+git stash drop
+
+## Git commit history
+##--------------------
+#  changing the last commit message (i.e. missing jira issue)
+git commit --amend
+
+# Fix the identity of the last commit
+git commit --amend --reset-author
+
+#Lists version history for the current branch
+git log
+
+#Lists version history for a file, including renames
+git log --follow [file]
