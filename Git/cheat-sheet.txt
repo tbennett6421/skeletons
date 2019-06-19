@@ -1,0 +1,76 @@
+## -- is an abbreviation for HEAD
+## the following commands are equivalent
+##
+## git reset -- README.md
+## git reset HEAD README.md
+
+## Git Configuration
+##--------------------
+git config --list
+git config --global user.name "Your Name"
+git config --global user.email "name@example.com"
+git config --global core.editor vim
+git config --global diff.tool vim
+git config --global merge.tool vim
+git config --global color.ui auto
+git config --global http.proxy http://proxyUsername:proxyPassword@proxy.server.com:port
+
+## Git Clone
+##--------------------
+# clone the raw repo rather then the project files
+git clone --bare <remote>
+
+# clone the raw repo with all mapped refs
+git clone --mirror <remote>
+
+# clone the raw repo with all mapped refs
+git clone --mirror <remote>
+
+# create a shallow copy without history
+git clone --depth 1 <remote>
+
+## Git operations
+##--------------------
+# display status of the repo
+git status
+
+# show diff among all files (unstaged)
+git diff
+
+# show diff for a single file (unstaged)
+git diff README.md
+
+# show diff for a single file that has been staged
+git diff --staged README.md
+
+# stage a file into vsc
+git add [file]
+
+# unstage a file
+git reset -- [file]
+
+# discard changes to a file
+git checkout -- [file]
+
+# write staged changes to tree
+git commit
+
+# Stash changes
+git stash save
+
+# Apply changes
+git stash pop
+
+##Git Branches
+##--------------------
+# Lists all local branches
+git branch
+
+# Lists all branches including remote
+git branch -a
+
+# Switches to the specified branch and updates the working directory
+git checkout [branch-name]
+
+## Checkout remote branch, create local branch, and set tracking
+git checkout -b develop origin/develop
