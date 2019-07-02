@@ -6,3 +6,13 @@
     post_reboot_delay: 15
     reboot_timeout: 3600
     test_command: 'exit (Get-Service -Name WinRM).Status -ne "Running"'
+
+- name: restart winlogbeat
+  win_service:
+    name: winlogbeat
+    state: restarted
+
+- name: restart filebeat
+  win_service:
+    name: filebeat
+    state: restarted

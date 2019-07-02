@@ -35,6 +35,7 @@
     organizational_unit: "OU=Groups,OU=Accounts,OU={{org}},{{ldap_root}}"
     attributes:
       mail: "All-Executives@{{org_tld}}"
+  register: first_run
 
 - name: Generate sample users
   win_domain_user:
@@ -60,6 +61,8 @@
   register: user
   with_items:
      "{{ domain_users }}"
+  when:
+      first_run.changed
 
 - name: Generate sample service accounts
   win_domain_user:
@@ -76,6 +79,8 @@
   register: user
   with_items:
      "{{ service_account_users }}"
+  when:
+      first_run.changed
 
 # win_domain_group_membership requires ansible 2.8
 - name: manage manager membership

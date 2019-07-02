@@ -2,13 +2,15 @@
 all:
 
   vars:
-    default_password: Changeme123
     # Alt username is used for Client OS's (7,8,10)
     alternative_username: Owner
     default_username: Administrator
     dc1_addr: a.b.c.d
     wks1_addr: a.b.c.d
     wks2_addr: a.b.c.d
+    default_password: Changeme123
+
+    helk_addr: a.b.c.d
 
     domain_name: ansible
     domain_tld: lab

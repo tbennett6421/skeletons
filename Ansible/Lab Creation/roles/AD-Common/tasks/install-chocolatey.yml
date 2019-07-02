@@ -1,3 +1,15 @@
 - name: Ensure Chocolatey itself is installed
   win_chocolatey:
     name: chocolatey
+  
+- name: Ensure sysmon is installed
+  win_chocolatey:
+    name: sysmon
+
+- name: Ensure winlogbeat is installed
+  win_chocolatey: 
+    name: winlogbeat
+
+- name: Ensure filebeat is installed
+  win_chocolatey:
+    name: filebeat
