@@ -7,3 +7,6 @@
 
 - include: install-chocolatey.yml
   tags: [init]
+
+- include: setup-tools.yml
+  tags: [init]

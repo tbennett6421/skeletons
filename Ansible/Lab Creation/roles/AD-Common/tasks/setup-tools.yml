@@ -1,0 +1,27 @@
+- name: copy sysmon config
+  win_copy:
+    src: files/sysmon.conf
+    dest: C:\ansible\sysmon.conf
+
+- name: install sysmon driver
+  win_command: C:\ProgramData\chocolatey\bin\Sysmon.exe -i -accepteula
+  register: sysmon_install
+  failed_when: false
+
+- name: install sysmon config
+  win_command: C:\ProgramData\chocolatey\bin\Sysmon.exe -c C:\ansible\sysmon.conf
+  register: sysmon_config
+
+- name: install winlogbeat config
+  win_template:
+    src: templates/winlogbeat.yml.j2
+    dest: C:\ProgramData\chocolatey\lib\winlogbeat\tools\winlogbeat.yml
+  register: winlogbeat
+  notify: restart winlogbeat
+
+- name: install filebeat config
+  win_template:
+    src: templates/filebeat.yml.j2
+    dest: C:\ProgramData\chocolatey\lib\filebeat\tools\filebeat.yml
+  register: winlogbeat
+  notify: restart filebeat
