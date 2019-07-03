@@ -1,0 +1,62 @@
+## Enable Full Auditing
+- name: enable system events (success/failure)
+  win_security_policy:
+    section: Event Audit
+    key: AuditSystemEvents
+    value: 3
+
+- name: enable logon events (success/failure)
+  win_security_policy:
+    section: Event Audit
+    key: AuditLogonEvents
+    value: 3
+
+- name: enable object access events (success/failure)
+  win_security_policy:
+    section: Event Audit
+    key: AuditObjectAccess
+    value: 3
+
+- name: enable privilege use events (success/failure)
+  win_security_policy:
+    section: Event Audit
+    key: AuditPrivilegeUse
+    value: 3
+
+- name: enable policy change events (success/failure)
+  win_security_policy:
+    section: Event Audit
+    key: AuditPolicyChange
+    value: 3
+
+- name: enable account manage events (success/failure)
+  win_security_policy:
+    section: Event Audit
+    key: AuditAccountManage
+    value: 3
+
+- name: enable process tracking events (success/failure)
+  win_security_policy:
+    section: Event Audit
+    key: AuditProcessTracking
+    value: 3
+
+- name: enable dsaccess events (success/failure)
+  win_security_policy:
+    section: Event Audit
+    key: AuditDSAccess
+    value: 3
+
+- name: enable account logon events (success/failure)
+  win_security_policy:
+    section: Event Audit
+    key: AuditAccountLogon
+    value: 3
+
+## Enable full privilege auditing
+- name: enable fullprivilegeauditing key
+  win_regedit:
+    path: HKLM:\System\CurrentControlSet\Control\Lsa
+    name: FullPrivilegeAuditing
+    data: hex:01
+    type: binary
