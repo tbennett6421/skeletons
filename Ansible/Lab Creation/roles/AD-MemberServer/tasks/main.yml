@@ -1,3 +1,6 @@
 ---
-- include: host-init.yml
+- include: configure-networking.yml
+  tags: [init]
+
+- include: join-domain.yml
   tags: [init]

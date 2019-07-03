@@ -1,0 +1,6 @@
+## Setup dns for ad-ds
+- name: Set dns addresses on all visible adapters (usually physical adapters that are in the Up state)
+  win_dns_client:
+    adapter_names: '*'
+    ipv4_addresses:
+      - "{{dc1_addr}}"
