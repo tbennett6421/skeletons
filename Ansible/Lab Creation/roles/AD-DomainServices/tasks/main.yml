@@ -1,5 +1,5 @@
 ---
-- include: host-init.yml
+- include: configure-networking.yml
   tags: [init]
 
 - include: install-dns-server.yml
@@ -11,5 +11,5 @@
 - include: demo-ad-structure.yml
   tags: [configure, demo]
 
-- include: demo-users.yml
+- include: demo-ad-users.yml
   tags: [configure, demo]

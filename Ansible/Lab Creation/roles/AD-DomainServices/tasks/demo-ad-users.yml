@@ -7,6 +7,7 @@
     organizational_unit: "OU=Groups,OU=Accounts,OU={{org}},{{ldap_root}}"
     attributes:
       mail: "All-Employees@{{org_tld}}"
+  register: employee_run
 
 - name: Create service group
   win_domain_group:
@@ -15,6 +16,7 @@
     category: security
     protect: yes
     organizational_unit: "OU=Groups,OU=Accounts,OU={{org}},{{ldap_root}}"
+  register: service_run
 
 - name: Create manager group
   win_domain_group:
@@ -25,6 +27,7 @@
     organizational_unit: "OU=Groups,OU=Accounts,OU={{org}},{{ldap_root}}"
     attributes:
       mail: "All-Managers@{{org_tld}}"
+  register: manager_run
 
 - name: Create executive group
   win_domain_group:
@@ -35,7 +38,7 @@
     organizational_unit: "OU=Groups,OU=Accounts,OU={{org}},{{ldap_root}}"
     attributes:
       mail: "All-Executives@{{org_tld}}"
-  register: first_run
+  register: executive_run
 
 - name: Generate sample users
   win_domain_user:
@@ -62,7 +65,7 @@
   with_items:
      "{{ domain_users }}"
   when:
-      first_run.changed
+      executive_run.changed
 
 - name: Generate sample service accounts
   win_domain_user:
@@ -80,7 +83,10 @@
   with_items:
      "{{ service_account_users }}"
   when:
-      first_run.changed
+    - employee_run.changed
+    -  service_run.changed
+    -  manager_run.changed
+    -  executive_run.changed
 
 # win_domain_group_membership requires ansible 2.8
 - name: manage manager membership

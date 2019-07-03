@@ -1,7 +1,4 @@
 ---
-default_password: Changeme123
-org: "Google"
-org_tld: "google.com"
 domain_users:
   - alice
   - bob
