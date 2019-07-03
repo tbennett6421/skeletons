@@ -2,22 +2,25 @@
 all:
 
   vars:
+
+    ## Credentials
     # Alt username is used for Client OS's (7,8,10)
     alternative_username: Owner
     default_username: Administrator
+    default_password: Changeme123
+
+    ## Host Inventory
     dc1_addr: a.b.c.d
     wks1_addr: a.b.c.d
     wks2_addr: a.b.c.d
-    default_password: Changeme123
-
     helk_addr: a.b.c.d
 
+    ## LDAP parameters
+    nb_domain: ANSIBLE
     domain_name: ansible
     domain_tld: lab
     domain: "{{domain_name}}.{{domain_tld}}"
     ldap_root: "DC={{domain_name}},DC={{domain_tld}}"
-    nb_domain: ANSIBLE
-
     org: "Google"
     org_tld: "google.com"
 

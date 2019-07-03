@@ -7,6 +7,18 @@
 - name: force reboot on name changes
   meta: flush_handlers
 
+- name: enable rdp and ensure it is started
+  win_service:
+    name: TermService
+    start_mode: auto
+    state: started
+
+- name: enable winrm and ensure it is started
+  win_service:
+    name: WinRM
+    start_mode: auto
+    state: started
+
 - name: Create directory structure
   win_file:
     path: C:\ansible\
@@ -20,15 +32,15 @@
 - name: install sysmon driver
   win_command: C:\ProgramData\chocolatey\bin\Sysmon.exe -i -accepteula
   register: sysmon_install
-  ignore_errors: yes
- 
+  failed_when: false
+
 - name: install sysmon config
   win_command: C:\ProgramData\chocolatey\bin\Sysmon.exe -c C:\ansible\sysmon.conf
   register: sysmon_config
 
 ## Render winlogbeat
 - name: install winlogbeat config
-  win_template: 
+  win_template:
     src: templates/winlogbeat.yml.j2
     dest: C:\ProgramData\chocolatey\lib\winlogbeat\tools\winlogbeat.yml
   register: winlogbeat
@@ -36,7 +48,7 @@
 
 # Render filebeat
 - name: install filebeat config
-  win_template: 
+  win_template:
     src: templates/filebeat.yml.j2
     dest: C:\ProgramData\chocolatey\lib\filebeat\tools\filebeat.yml
   register: winlogbeat
