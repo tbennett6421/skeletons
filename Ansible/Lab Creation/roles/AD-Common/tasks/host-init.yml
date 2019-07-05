@@ -19,7 +19,12 @@
     start_mode: auto
     state: started
 
-- name: Create directory structure
+- name: Create directory structure for ansible
   win_file:
     path: C:\ansible\
+    state: directory
+
+- name: Create directory structure for tokens
+  win_file:
+    path: C:\.tokens\
     state: directory
