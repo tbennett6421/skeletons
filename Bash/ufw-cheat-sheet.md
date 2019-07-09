@@ -35,6 +35,7 @@ root@127:~$ sudo ufw deny mysql
 Rule updated
 Rule updated (v6)
 ```
+
 # Allow access from a trusted IP address
 
 Typically, you would need to allow access only to publicly open ports such as port 80. Access to all other ports need to be restricted or limited.
