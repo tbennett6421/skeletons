@@ -13,3 +13,11 @@
 - name: Ensure filebeat is installed
   win_chocolatey:
     name: filebeat
+
+- name: Ensure rsat-tools is installed
+  win_chocolatey:
+    name: rsat
+
+- name: Ensure wireshark is installed
+  win_chocolatey:
+    name: wireshark

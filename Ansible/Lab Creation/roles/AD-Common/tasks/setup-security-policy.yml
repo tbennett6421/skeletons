@@ -54,9 +54,17 @@
     value: 3
 
 ## Enable full privilege auditing
-- name: enable fullprivilegeauditing key
+- name: Enable fullpriv auditing for lsa
   win_regedit:
     path: HKLM:\System\CurrentControlSet\Control\Lsa
     name: FullPrivilegeAuditing
     data: hex:01
     type: binary
+
+## Disable NLA for remote access via remmina
+#- name: Disable NLA for RDP
+#  win_regedit:
+#    path: HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp
+#    name: "SecurityLayer"
+#    data: hex:00
+#    type: binary

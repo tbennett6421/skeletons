@@ -6,8 +6,9 @@ all:
     ## Credentials
     # Alt username is used for Client OS's (7,8,10)
     alternative_username: Owner
+    alternative_password: Password1
     default_username: Administrator
-    default_password: Changeme123
+    default_password: Password1
 
     ## Host Inventory
     dc1_addr: a.b.c.d
@@ -43,14 +44,14 @@ all:
       hosts:
         wks1:
           ansible_user: "{{alternative_username}}"
-          ansible_password: "{{default_password}}"
+          ansible_password: "{{alternative_password}}"
           ansible_connection: winrm
           ansible_host: "{{wks1_addr}}"
           ansible_winrm_server_cert_validation: ignore
           os: windows 10
         wks2:
           ansible_user: "{{alternative_username}}"
-          ansible_password: "{{default_password}}"
+          ansible_password: "{{alternative_password}}"
           ansible_connection: winrm
           ansible_host: "{{wks2_addr}}"
           ansible_winrm_server_cert_validation: ignore

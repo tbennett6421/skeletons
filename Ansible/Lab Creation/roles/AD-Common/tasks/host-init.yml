@@ -26,5 +26,5 @@
 
 - name: Create directory structure for tokens
   win_file:
-    path: C:\.tokens\
+    path: C:\ansible\.tokens\
     state: directory

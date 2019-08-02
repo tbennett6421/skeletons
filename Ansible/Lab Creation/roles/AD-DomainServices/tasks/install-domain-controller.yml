@@ -20,5 +20,6 @@
       register: domain_install
       notify: reboot windows
 
-- name: force reboot on role installation
+- name: force reboot on domain changes
   meta: flush_handlers
+
