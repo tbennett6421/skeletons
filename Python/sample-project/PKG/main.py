@@ -98,7 +98,7 @@ def main():
             ## run ldap query
             resultSet = executeLDAPQuery(conn=LDAPConn, search_base=pg_state.ldap_root, name=ldap_query_name, query=ldap_query_definition)
             ## Get all accounts and set aside
-            accounts = extractSingleAttribute("sAMAccountName", resultSet)
+            accounts = extractSingleAttribute("sAMAccountName", resultSet) #pylint: disable=undefined-variable
             accounts = [item.lower() for item in accounts]
             if args.verbose > 2:
                 print("[***] Extracting sAMAccountName from resultSet")
