@@ -52,4 +52,30 @@ Awk uses some internal variables to assign certain pieces of information as it p
 | ORS | The record separator for the outputted data. By default, this is a newline character. |
 | RS | The record separator used to distinguish separate records in the input file. By default, this is a newline character. |
 
+## Expanded Format
+Awk is fairly complex in it's capabilities. Changing the internal variable would typically be done before any text processing against documents. Awk supports this by using a BEGIN condition to preprocess documents.
 
+| Keyword | Purpose |
+| -- | -- |
+| BEGIN | condition that match before the document has been processed |
+| END | condition that match after the document has been processed |
+
+This can further generalize our pipeline as such
+```
+awk 'BEGIN { action; }
+/search/ { action; }
+END { action; }' input_file
+```
+
+Examples include parsing `/etc/passwd` and extracting the users
+```
+awk 'BEGIN { FS=":"; }
+{ print $1; }' /etc/passwd
+```
+
+or printing a table header/footer
+```
+awk 'BEGIN { FS=":"; print "User\t\tUID\t\tGID\t\tHome\t\tShell\n--------------"; }
+{print $1,"\t\t",$3,"\t\t",$4,"\t\t",$6,"\t\t",$7;}
+END { print "---------\nFile Complete" }' /etc/passwd
+```
