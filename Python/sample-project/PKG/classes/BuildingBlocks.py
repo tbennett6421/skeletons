@@ -39,22 +39,38 @@ class BaseObject(object):
 
     def serialize(self):
         try:
-            return pickle.dumps(self.__dict__)
+            p = pickle.dumps(self.__dict__)
+            return p.encode(encoding='UTF-8')
+        except RecursionError as e:
+            p = pickle.dumps({'serialize_error': e})
+            return p.encode(encoding='UTF-8')
+        except TypeError as e:
+            p = pickle.dumps({'serialize_error': e})
+            return p.encode(encoding='UTF-8')
         except Exception as e:
-            return {'serialize_error': e}
+            p = pickle.dumps({'serialize_error': e})
+            return p.encode(encoding='UTF-8')
 
     def marshall(self):
         try:
-            return json.dumps(self.__dict__)
+            j = jsonpickle.dumps(self.__dict__)
+            return j.encode(encoding='UTF-8')
+        except RecursionError as e:
+            j =  jsonpickle.dumps({'marshall_error': e})
+            return j.encode(encoding='UTF-8')
         except TypeError as e:
-            return {'marshall_error': e}
+            j =  jsonpickle.dumps({'marshall_error': e})
+            return j.encode(encoding='UTF-8')
+        except Exception as e:
+            j =  jsonpickle.dumps({'marshall_error': e})
+            return j.encode(encoding='UTF-8')
 
     def dump(self):
         try:
             j = self.marshall()
+            jd = hashlib.sha1(j).hexdigest()
             p = self.serialize()
             pd = hashlib.sha1(p).hexdigest()
-            jd = hashlib.sha1(p).hexdigest()
             return {
                 "json": j,
                 "json_digest": jd,
