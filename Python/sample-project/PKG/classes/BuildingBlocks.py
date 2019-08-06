@@ -7,8 +7,10 @@ from __future__ import absolute_import
 from pprint import pformat
 from pprint import pprint
 import json
+import jsonpickle
 import pickle
 import hashlib
+import collections
 
 """
  BaseObject provides a template of useful methods for all classes to inherit
@@ -36,6 +38,21 @@ class BaseObject(object):
                 raise ValueError("Unable to successfully instantiate object of class::"+self.__class__.__name__)
         else:
             return self.isValid
+    
+    def frozen(self):
+        try:
+            hashable = {}
+            for k,v in self.__dict__.items():
+                k_bool = isinstance(k, collections.Hashable)
+                v_vool = isinstance(v, collections.Hashable)
+                if k_bool is True and v_vool is True:
+                    hashable[k] = v
+                else:
+                    assert(k_bool)
+                    hashable[k] = frozenset(v.__dict__.items())
+            return hashable
+        except Exception as e:
+            raise e
 
     def serialize(self):
         try:
