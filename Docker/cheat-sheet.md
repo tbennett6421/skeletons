@@ -97,9 +97,13 @@ Values for use with `--format`
 | .Mounts | Names of the volumes mounted in this container. |
 | .Networks | Names of the networks attached to this container. |
 
-
-
 # Task Examples
+
+Create new docker container, ie. ubuntu
+```bash
+docker pull ubuntu:latest
+docker run -i -t ubuntu /bin/bash
+```
 
 Print all docker containers in a `tab`ulated table
 ```bash
@@ -116,4 +120,3 @@ Clean up orphaned networks
 ```bash
 docker network rm $(docker network ls -q)
 ```
-
