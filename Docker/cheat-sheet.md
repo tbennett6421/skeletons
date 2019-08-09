@@ -1,3 +1,16 @@
+# Installing Docker
+```bash
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+$(lsb_release -cs) stable "
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli docker-compose containerd.io -y
+```
+Running a Docker compose yaml file
+```
+docker-compose up
+```
+
 # Display Containers
 
 List all containers
@@ -16,7 +29,7 @@ docker ps --no-trunc
 ```
 
 List containers filtering by exit signal (137=SIGKILL)
-```
+```bash
 docker ps -a --filter 'exited=0'    # Exited with SUCCESS
 docker ps -a --filter 'exited=137'  # Exited via SIGKILL
 ```
@@ -33,12 +46,12 @@ docker ps --filter expose=8000-8080/tcp
 *see the section on format variables*
 
 Output a colon delimited table with headers for use in `cut`/`awk`
-```
+```bash
 sudo docker ps -a --format "table {{.var1}}: {{.var2}}
 ```
 
 Output a colon delimited table without headers for use in `cut`/`awk`
-```
+```bash
 sudo docker ps -a --format "{{.var1}}: {{.var2}}
 ```
 

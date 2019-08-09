@@ -1,0 +1,15 @@
+# This is the most frequent reason for Elasticsearch failing
+# to start since Elasticsearch version 5 was released.
+
+On Linux, use sysctl vm.max_map_count on the host to view the current value, 
+and see Elasticsearch's documentation on virtual memory for guidance on how 
+to change this value. Note that the limits must be changed on the host; they 
+cannot be changed from within a container.
+
+## Change virtual memory limit
+    sysctl -w vm.max_map_count=262144
+
+## Set virtual memory limit permanently
+update the vm.max_map_count setting in /etc/sysctl.conf. 
+To verify after rebooting, run 
+    sysctl vm.max_map_count
