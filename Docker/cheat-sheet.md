@@ -55,6 +55,27 @@ Output a colon delimited table without headers for use in `cut`/`awk`
 sudo docker ps -a --format "{{.var1}}: {{.var2}}
 ```
 
+# Interacting with containers
+exec into container
+```bash
+docker exec -it $(docker container ls  | grep '<seach_term>' | awk '{print $1}') bash
+```
+exec into container on windows with Git Bash
+```bash
+winpty docker exec -it $(docker container ls  | grep '<seach_term>' | awk '{print $1}') bash
+```
+
+# Taking actions on containers
+Stop ALL containers
+```bash
+docker stop $(docker ps -a -q)
+```
+
+Remove ALL containers
+```bash
+docker rm -f $(docker ps -a -q)
+```
+
 # References
 
 ## Formatting output
@@ -78,4 +99,21 @@ Values for use with `--format`
 
 
 
+# Task Examples
+
+Print all docker containers in a `tab`ulated table
+```bash
+sudo docker ps -a --format "table {{.ID}}: {{.Image}}: {{.Command}}: {{.Status}}: {{.Ports}}: {{.Names}} | \
+awk -v OFS="\t" -v FS=":" '{$1=$1}1'
+```
+
+Clean up orphaned volumes
+```bash
+docker volume rm $(docker volume ls -qf dangling=true)
+```
+
+Clean up orphaned networks
+```bash
+docker network rm $(docker network ls -q)
+```
 
