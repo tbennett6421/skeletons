@@ -7,6 +7,13 @@
 - name: force reboot on name changes
   meta: flush_handlers
 
+- name: Enable RDP via regpol
+  win_regedit:
+    path: HKLM:\System\CurrentControlSet\Control\Terminal Server
+    name: fDenyTSConnections
+    data: hex:00
+    type: binary
+
 - name: enable rdp and ensure it is started
   win_service:
     name: TermService
