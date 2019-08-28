@@ -6,6 +6,8 @@ password
 -- Better output
 set sqlformat ansiconsole
 set sqlformat fixed
+set sqlformat csv
+set sqlformat json
 
 -- Show columns in table
 describe table_name
@@ -30,3 +32,8 @@ WHERE http_code is null;
 
 -- ORACLE-specific LIMIT clause
 SELECT owner, table_name FROM all_tables FETCH NEXT 2 ROWS ONLY;
+
+-- Spool a query to disk
+SPOOL /tmp/output.txt
+SELECT * from zoo;
+SPOOL off
