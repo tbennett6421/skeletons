@@ -32,8 +32,13 @@ WHERE http_code is null;
 
 -- ORACLE-specific LIMIT clause
 SELECT owner, table_name FROM all_tables FETCH NEXT 2 ROWS ONLY;
+SELECT * FROM all_tables WHERE rownum <= 10;
 
 -- Spool a query to disk
 SPOOL /tmp/output.txt
 SELECT * from zoo;
 SPOOL off
+
+-- F9 - run
+-- F8 - sql recall
+-- ctrl+enter

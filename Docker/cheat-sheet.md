@@ -76,6 +76,11 @@ Remove ALL containers
 docker rm -f $(docker ps -a -q)
 ```
 
+purge ALL containers
+```bash
+docker stop $(docker ps -a -q) && docker rm -f $(docker ps -a -q)
+```
+
 # References
 
 ## Formatting output
