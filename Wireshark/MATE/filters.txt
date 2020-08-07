@@ -1,0 +1,17 @@
+# Filter Dropped/Filtered Syn Packets
+mate.tcp_conversations.NumOfPdus == 1
+
+# Filter Closed Packets SYN::RST or SYN::ICMP
+mate.tcp_conversations.NumOfPdus == 2
+
+# Filter NMap SYN Stealth SYN::SYN/ACK::RST
+mate.tcp_conversations.NumOfPdus == 3
+
+# May show NMap Connect Scan SYN::SYN/ACK::ACK::RST
+mate.tcp_conversations.NumOfPdus == 4
+
+# May show NMap Connect Scan SYN::SYN/ACK::ACK::FIN::FIN/ACK:ACK
+mate.tcp_conversations.NumOfPdus == 6
+
+# May show NMap Connect Scan SYN::SYN/ACK::ACK::FIN/ACK::ACK:FIN/ACK::ACK
+mate.tcp_conversations.NumOfPdus == 7
