@@ -17,6 +17,9 @@ tmux new -s session_name
 # attaches to an existing named tmux session
 tmux attach -t session_name
 
+# attach to an existing session, creating if needed
+tmux attach -t HTB || tmux new -s HTB
+
 # detach the currently attached session
 tmux detach (prefix + d)
 
@@ -25,6 +28,9 @@ tmux list-sessions
 
 # switch to an existing named session
 tmux switch -t session_name
+
+# rename session
+tmux rename-session new-name ( prefix + $ )
 ```
 
 ## Working with Windows
