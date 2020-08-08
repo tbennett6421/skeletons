@@ -47,12 +47,18 @@ sudo zfs set mountpoint=/new/mount/point fserver
 sudo zfs unmount fserver
 ```
 
-### mount all filesystems
+mount all filesystems
+```bash
 zfs mount -a
+```
 
-### destroy a pool
+destroy a pool
+```bash
 sudo zpool destroy POOL
+```
 
-### turn on auto expand ###
+turn on auto expand
+```bash
 sudo zpool set autoexpand=on POOL
+```
 
