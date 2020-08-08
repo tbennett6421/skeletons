@@ -32,21 +32,68 @@ Windows are displayed on the bottom bar. Your active window is marked with a ast
 
 ```bash
 # create a new window
-tmux new-window (prefix + c)
+tmux new-window ( prefix + c )
 
 # renaming a window
-tmux rename-window new-name (prefix + ,)
+tmux rename-window new-name ( prefix + , )
 
 # move to the window based on index number
 (prefix + 0-9)
+
+# move to the next window
+( prefix + n )
+
+# move to the previous window
+( prefix + p )
 ```
 
 
 ## Working with Panes
 ```
 # vertical split
-tmux split-window (prefix + ")
+tmux split-window ( prefix + " )
 
 # horizontal split
-tmux split-window -h (prefix + %) ~~~ Remember to use shift ~~~
+tmux split-window -h ( prefix + % ) ~~~ Remember to use shift ~~~
 
+# Chaging active panes
+(prefix) + <arrows>
+
+# resize windows
+(prefix) hold control + <arrows>
+
+# Move pane to left
+( prefix + { )
+
+# Move pane to right
+( prefix + } )
+
+# Convert pane to a window
+( prefix + ! )
+
+# Toggle zoom in/out
+( prefix + z )
+```
+
+# Using Edit/Copy Mode
+```bash
+# Enter Edit mode
+( prefix + [ )
+
+# Enter Copy/Selection mode
+<Space>
+
+# Cancel Selection
+<Esc>
+
+# Yank to Buffer
+<Enter>
+
+# Paste from buffer
+( prefix + ] )
+```
+
+# Getting Help
+```
+( prefix + ? )
+```
