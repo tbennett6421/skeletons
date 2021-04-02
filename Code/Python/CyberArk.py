@@ -3,37 +3,66 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
+__code_version__ = 'v1.0.4'
+
 ## Standard Libraries
-from pprint import pprint
+import os
+from urllib.parse import quote
+from getpass import getpass
 
 ## Third-Party
 import requests
+from requests.models import HTTPError
 import urllib3
-from urllib.parse import quote
 
 ## Modules
-from .BuildingBlocks import State               #pylint: disable=relative-beyond-top-level
-from .BuildingBlocks import BaseObject          #pylint: disable=relative-beyond-top-level
+try:
+    from .BuildingBlocks import BaseObject
+except ImportError:
+    from BuildingBlocks import BaseObject
 
 class CyberArk(BaseObject):
 
-    def __init__(self, ca_appid=None, ca_safe=None, ca_object=None, base_url=None):
+    def __init__(self, ca_appid=None, ca_safe=None, ca_object=None, base_url="https://ccp.availity.net/AIMWebService/api/Accounts"):
         ## Call parent init
         super().__init__()
 
+        # disable warnings is required due to requests bundling their own copy
+        # of urllib3 and not passing tls_bundle down to the connection pool
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        # Configure TLS validation within requests
+        self.configureTLSValidation()
+        self.token = None
         self.is_valid = False
-        self.setCAParams(ca_appid, ca_safe, ca_object, base_url)
+        self.base_url = base_url
+        self.setCAParams(ca_appid, ca_safe, ca_object)
+
+    def configureTLSValidation(self):
+        try:
+            self.tls_bundle = os.environ["REQUESTS_CA_BUNDLE"]
+            self.verify = True
+        except KeyError:
+            RHEL_bundle = "/etc/pki/tls/certs/ca-bundle.crt"
+            WSL_bundle = "/etc/ssl/certs/ca-certificates.crt"
+            if os.path.isfile(RHEL_bundle):
+                self.verify = True
+                self.tls_bundle = RHEL_bundle
+            elif os.path.isfile(WSL_bundle):
+                self.verify = True
+                self.tls_bundle = WSL_bundle
+            else:
+                self.verify = False
+                self.tls_bundle = False
 
     def validate(self):
-        self.is_valid = False
         if self.ca_appid is None:
+            self.is_valid = False
             return False
         elif self.ca_safe is None:
+            self.is_valid = False
             return False
         elif self.ca_object is None:
-            return False
-        elif self.base_url is None:
+            self.is_valid = False
             return False
         else:
             self.is_valid = True
@@ -60,18 +89,10 @@ class CyberArk(BaseObject):
         else:
             return False
 
-    def setCAServerUrl(self, base_url):
-        if base_url is not None:
-            self.base_url = base_url
-            return True
-        else:
-            return False
-
-    def setCAParams(self, ca_appid=None, ca_safe=None, ca_object=None, base_url=None):
-        self.setCAAppid(ca_appid)           #pylint: disable=not-callable
-        self.setCASafe(ca_safe)             #pylint: disable=not-callable
-        self.setCAObject(ca_object)         #pylint: disable=not-callable
-        self.setCAServerUrl(base_url)       #pylint: disable=not-callable
+    def setCAParams(self, ca_appid=None, ca_safe=None, ca_object=None):
+        self.setCAAppid(ca_appid)      #pylint: disable=not-callable
+        self.setCASafe(ca_safe)        #pylint: disable=not-callable
+        self.setCAObject(ca_object)    #pylint: disable=not-callable
 
     def buildParams(self):
         return {
@@ -80,42 +101,154 @@ class CyberArk(BaseObject):
             'Object': self.ca_object
         }
 
+    """ doRequest uses the CCP endpoint to authenticate against cyberark using a trusted IP. """
     def doRequest(self):
-        if self.validate() == True:
+        if self.validate():
             try:
                 self.params = self.buildParams()
-                r = requests.get(self.base_url, params=self.params, verify=False)
+                r = requests.get(self.base_url, params=self.params, verify=self.tls_bundle)
                 r.raise_for_status()
                 self.request_object = r
                 self.request_url = r.url
                 self.request_responseText = r.text
                 self.request_responseJSON = r.json()
                 self.is_valid = True
+                # at this point we should either have thrown httperror or not.
+                # set attributes if we have not thrown httperror
+                self.setName(name=self.CCPGetName(self.request_responseJSON))
+                self.setUsername(username=self.CCPGetUsername(self.request_responseJSON))
+                self.setPassword(password=self.CCPGetPassword(self.request_responseJSON))
+            except HTTPError:
+                self.doRequestUserFallback()
+            except Exception:
+                raise
+        else:
+            raise ValueError("Failed self.validate()")
 
-                self.setName()
-                self.setUsername()
-                self.setPassword()
+    """
+      doRequestUserFallback is used to authenticate to epv and pull creds
+      for instance, when operating from a developer workstation.
+    """
+    def doRequestUserFallback(self):
+        if not self.token:
+            usernm = input("Cyberark Username: ")
+            passwd = getpass("Cyberark Password: ")
+            self.token = self.authenticateUser(username=usernm, password=passwd)
+        if self.validate():
+            try:
+                account_url = "https://epv.availity.net/PasswordVault/WebServices/PIMServices.svc/Accounts"
+                self.params = self.buildParams()
+                headers = {
+                    "Accept": "application/json",
+                    "Authorization": self.token,
+                    "ContentType": "application/json",
+                }
+                get_params = {
+                    "Safe": self.params['Safe'],
+                    "Keywords": self.params['Object'],
+                }
+                r = requests.get(account_url, headers=headers, params=get_params, verify=self.tls_bundle)
+                r.raise_for_status()
+                self.request_object = r
+                self.request_url = r.url
+                self.request_responseText = r.text
+                self.request_responseJSON = r.json()
+                self.is_valid = True
+                # at this point we should either have thrown httperror or not.
+                # set attributes if we have not thrown httperror
+                self.setName(name=self.EPVGetName(self.request_responseJSON))
+                self.setUsername(username=self.EPVGetUsername(self.request_responseJSON))
+                self.setPassword(password=self.EPVGetPassword(self.request_responseJSON))
             except:
                 raise
         else:
             raise ValueError("Failed self.validate()")
 
-    def setName(self):
-        self.name = self.request_responseJSON['Name']
+    def authenticateUser(self, username, password, logon_url="https://epv.availity.net/PasswordVault/WebServices/auth/Cyberark/CyberArkAuthenticationService.svc/Logon"):
+        headers = {
+            "Accept": "application/json",
+            "ContentType": "application/json",
+        }
+        body = {
+            "username": username,
+            "password": password,
+            "useRadiusAuthentication": True,
+            "connectionnumber": "1",
+        }
+        print("Making POST request to logon: %s" % (logon_url))
+        print("Check MS Authenticator for MFA response")
+        r = requests.post(logon_url, headers=headers, json=body, verify=self.tls_bundle)
+        r.raise_for_status()
+        respJson = r.json()
+        return respJson['CyberArkLogonResult']
 
-    def setUsername(self):
+    def CCPGetName(self, response):
         try:
-            self.username = self.request_responseJSON['UserName']
+            return response['Name']
         except KeyError:
-            self.username = None
+            return None
 
-    def setPassword(self):
-        self.password = self.request_responseJSON['Content']
+    def CCPGetUsername(self, response):
+        try:
+            return response['UserName']
+        except KeyError:
+            return None
+
+    def CCPGetPassword(self, response):
+        try:
+            return response['Content']
+        except KeyError:
+            return None
+
+    def EPVGetName(self, response):
+        try:
+            baseattribs = response['accounts'][0]['Properties']
+            for item in baseattribs:
+                if item['Key'] == "Name":
+                    return item["Value"]
+        except KeyError:
+            return None
+
+    def EPVGetUsername(self, response):
+        try:
+            baseattribs = response['accounts'][0]['Properties']
+            for item in baseattribs:
+                if item['Key'] == "UserName":
+                    return item["Value"]
+        except KeyError:
+            return None
+
+    def EPVGetPassword(self, response):
+        # Get AccountID
+        aid = response['accounts'][0]['AccountID']
+        try:
+            password_url = "https://epv.availity.net/PasswordVault/WebServices/PIMServices.svc/Accounts/%s/Credentials" % (aid)
+            headers = {
+                "Authorization": self.token,
+            }
+            r = requests.get(password_url, headers=headers, verify=self.tls_bundle)
+            r.raise_for_status()
+            self.password = r.text
+            return self.password
+        except:
+            raise
+
+    """
+      set name manually or try from ccp response or try from epv response.
+    """
+    def setName(self, name=None):
+        self.name = name
+
+    def setUsername(self, username=None):
+        self.username = username
+
+    def setPassword(self, password=None):
+        self.password = password
 
     def getName(self, throw=True):
         try:
             return self.name
-        except:
+        except Exception:
             if throw:
                 raise
             else:
@@ -124,7 +257,7 @@ class CyberArk(BaseObject):
     def getUsername(self, throw=True):
         try:
             return self.username
-        except:
+        except Exception:
             if throw:
                 raise
             else:
@@ -133,7 +266,7 @@ class CyberArk(BaseObject):
     def getPassword(self, throw=True):
         try:
             return self.password
-        except:
+        except Exception:
             if throw:
                 raise
             else:

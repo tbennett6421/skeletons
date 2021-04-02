@@ -3,17 +3,24 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
+__code_version__ = 'v1.0.3'
+
 ## Standard Libraries
-from pprint import pprint
+from datetime import datetime
 import logging
+import logging.handlers
+import json
+from queue import Queue
 
 ## Modules
-from .BuildingBlocks import State               #pylint: disable=relative-beyond-top-level
-from .BuildingBlocks import BaseObject          #pylint: disable=relative-beyond-top-level
+try:
+    from .BuildingBlocks import BaseObject
+except ImportError:
+    from BuildingBlocks import BaseObject
 
 class Logger(BaseObject):
-
-    def __init__(self, log_name=None, log_level=None, log_format=None, start=False):
+    # region: Logger
+    def __init__(self, log_name=None, log_level=None, log_format=None, log_file=None, start=False):
         ## Call parent init
         super().__init__()
 
@@ -23,22 +30,25 @@ class Logger(BaseObject):
         self.log_name = None                        #lazy-loadable parameter
         self.log_level = None                       #lazy-loadable parameter
         self.log_format = None                      #lazy-loadable parameter
+        self.simple_queue = None
         self.default_logging_name = __name__
         self.default_logging_level = "WARNING"
-        self.default_logging_format = '%(asctime)-15s %(levelname)s log_name=%(name)s log_module=%(module)s %(message)s'
+        self.default_log_file = '/var/log/fraud/soc-lock/stdout.log'
+        self.default_logging_format = '%(asctime)-15s [%(levelname)s] (%(name)s) - %(message)s'
         self.default_logging_format_dictionary = {
-            "DEBUG": '%(asctime)-15s [%(levelname)s] (%(name)s) [%(module)s] %(funcName)s:%(lineno)d - %(message)s',
-            'WARNING': self.default_logging_format,
+            "DEBUG": '%(asctime)-15s [%(levelname)s] (%(name)s) - %(message)s',
+            "ERROR": self.default_logging_format,
+            "CRITICAL": self.default_logging_format,
             'WARN': self.default_logging_format,
+            'WARNING': self.default_logging_format,
             'INFO': self.default_logging_format
         }
         self.acceptable_log_levels = self.default_logging_format_dictionary.keys()
         self.set_log_name(log_name)
         self.set_log_level(log_level)
         self.set_log_format(log_format)
-        if start:
-            self.configure(log_name=log_name, log_level=log_level, log_format=log_format)
-            self.start()
+        self.set_log_file(log_file)
+        self.configure(log_name=log_name, log_level=log_level, log_format=log_format, log_file=log_file, start=start)
 
     """ Method to set log_name """
     def set_log_name(self, log_name=None):
@@ -79,24 +89,53 @@ class Logger(BaseObject):
                 self.log_format = self.default_logging_format_dictionary[self.log_level]
                 self.formatter = logging.Formatter(self.log_format)
         else:
-            self.log_format = self.log_format
+            self.log_format = log_format
             self.formatter = logging.Formatter(self.log_format)
 
+    """ Method to set log_file """
+    def set_log_file(self, log_file):
+        if log_file is None:
+            self.log_file = self.default_log_file
+        else:
+            self.log_file = log_file
+
     """ If class is lazy loaded; call configure with params """
-    def configure(self, log_name=None, log_level=None, log_format=None, start=False):
+    def configure(self, log_name=None, log_level=None, log_format=None, log_file=None, start=False):
         self.set_log_level(log_level)
         self.set_log_name(log_name)
         self.set_log_format(log_format)
+        self.set_log_file(log_file)
+        if start:
+            self.start()
 
     def addStreamHandler(self, stream=None):
         sh = self.stream_handler = logging.StreamHandler(stream)
         sh.setFormatter(self.formatter)
         self.attach(sh)
 
-    def addFileHandler(self, filename, mode='a', encoding=None, delay=False):
-        fh = self.file_handler = logging.FileHandler(filename)
+    def addFileHandler(self, filename, mode='a', encoding=None, delay=False, maxBytes=2000000, backupCount=5):
+        """ Default to 5 copies, of 2MB each """
+        fh = self.file_handler = logging.handlers.RotatingFileHandler(filename, mode=mode, maxBytes=maxBytes, backupCount=backupCount)
         fh.setFormatter(self.formatter)
         self.attach(fh)
+
+    def addQueueHandler(self):
+        if self.simple_queue is not None:
+            return
+        else:
+            q = self.simple_queue = Queue()
+            qh = self.queue_handler = logging.handlers.QueueHandler(q)
+            qh.setFormatter(self.formatter)
+            self.attach(qh)
+
+    def getAllLogs(self):
+        if self.simple_queue is None:
+            return False
+        else:
+            lst = []
+            while not self.simple_queue.empty():
+                lst.append(self.simple_queue.get().message)
+            return lst
 
     def attach(self, handler):
         if self.logger is None:
@@ -108,31 +147,44 @@ class Logger(BaseObject):
     def start(self):
         if self.ready():
             return
-        else: 
+        else:
             self.logger = logging.getLogger(self.log_name)
-            self.addStreamHandler()
             self.logger.setLevel(level=getattr(logging, self.log_level))
+            self.addStreamHandler()
             self.log(msg="Logger ready", level=self.log_level)
             self.log(msg="Subscribed to %s level log channel" % (self.log_level), level=self.log_level)
+            if self.log_file is not None:
+                self.addFileHandler(self.log_file)
+            if self.simple_queue is None:
+                self.addQueueHandler()
             self.is_valid = True
 
-    def log(self, message=None, msg=None, level='Info'):
+    def log(self, message=None, msg=None, kwargs=None, level='Info'):
         b = self.check_log_level(level)
         if not b:
             return False
         # accept message or msg as message
         message = message if message else msg
         level = getattr(logging, level.upper())
+
+        message = self.wrap_message_in_quotes(message)
+        if kwargs:
+            kwargs = self.handle_kwargs(kwargs)
+            message = str(kwargs)+" "+message
+            message = message.strip()
         return self.logger.log(msg=message, level=level)
 
     def handle_kwargs(self, kwargs):
-        return '{0}'.format(' '.join(('{0}={1}'.format(k, v) for k, v in kwargs.items())))
-        
+        try:
+            return '{0}'.format(' '.join(('{0}={1}'.format(k, v) for k, v in kwargs.items())))
+        except AttributeError:
+            return ""
+
     def wrap_message_in_quotes(self, message):
         if type(message) is list:
-            if len(message) is 0:
+            if len(message) == 0:
                 message = ""
-            elif len(message) is 1:
+            elif len(message) == 1:
                 message = str(message)
             else:
                 message = str("\n".join(message))
@@ -142,51 +194,94 @@ class Logger(BaseObject):
 
     def debug(self, message, kwargs=None):
         level='debug'
-        message = self.wrap_message_in_quotes(message)
-        if kwargs:
-            kwargs = self.handle_kwargs(kwargs)
-            message = kwargs+" "+message
-        self.log(msg=message, level=level)
-        
+        self.log(msg=str(message), kwargs=kwargs, level=level)
+
     def error(self, message, kwargs=None):
         level='error'
-        message = self.wrap_message_in_quotes(message)
-        if kwargs:
-            kwargs = self.handle_kwargs(kwargs)
-            message = kwargs+" "+message
-        self.log(msg=message, level=level)
+        self.log(msg=str(message), kwargs=kwargs, level=level)
 
     def critical(self, message, kwargs=None):
         level='critical'
-        message = self.wrap_message_in_quotes(message)
-        if kwargs:
-            kwargs = self.handle_kwargs(kwargs)
-            message = kwargs+" "+message
-        self.log(msg=message, level=level)
+        self.log(msg=message, kwargs=kwargs, level=level)
 
     def warn(self, message, kwargs=None):
         level='warning'
-        message = self.wrap_message_in_quotes(message)
-        if kwargs:
-            kwargs = self.handle_kwargs(kwargs)
-            message = kwargs+" "+message
-        self.log(msg=message, level=level)
+        self.log(msg=str(message), kwargs=kwargs, level=level)
 
     def warning(self, message, kwargs=None):
         level='warning'
-        message = self.wrap_message_in_quotes(message)
-        if kwargs:
-            kwargs = self.handle_kwargs(kwargs)
-            message = kwargs+" "+message
-        self.log(msg=message, level=level)
+        self.log(msg=str(message), kwargs=kwargs, level=level)
 
     def info(self, message, kwargs=None):
         level='info'
-        message = self.wrap_message_in_quotes(message)
-        if kwargs:
-            kwargs = self.handle_kwargs(kwargs)
-            message = kwargs+" "+message
-        self.log(msg=message, level=level)
+        self.log(msg=str(message), kwargs=kwargs, level=level)
+
+    # endregion: Logger
+
+class SplunkLogger(Logger):
+    # region: SplunkLogger
+
+    def __init__(self, log_name=None, log_level=None, log_format=None, log_file=None, start=False):
+
+        self.default_logging_format = '%(message)s'
+        if log_name is None:
+            log_name = 'splunk::'+__name__
+        if log_level is None:
+            log_level = 'WARN'
+        if log_format is None:
+            log_format = self.default_logging_format
+        if log_file is None:
+            raise AssertionError("SplunkLogger requires a log_file to emit logs")
+        #self.splunk_keys = None
+
+        ## Call parent init
+        super().__init__(log_name=log_name, log_level=log_level, log_format=log_format, log_file=log_file, start=start)
+
+    """ @overload: All logging mechanisms call .log() on the backend. Ignore kwargs but accept the parameter """
+    def log(self, message=None, msg=None, kwargs=None, level='Info'):
+        b = self.check_log_level(level)
+        if not b:
+            return False
+        # accept message or msg as message
+        message = message if message else msg
+        level = getattr(logging, level.upper())
+        return self.logger.log(msg=message, level=level)
+
+    """ @overload: Do not start stream handlers """
+    def start(self):
+        if self.ready():
+            return
+        else:
+            self.logger = logging.getLogger(self.log_name)
+            self.logger.setLevel(level=getattr(logging, self.log_level))
+            self.addQueueHandler()
+            if self.log_file is not None:
+                self.addFileHandler(self.log_file)
+            if self.simple_queue is None:
+                self.addQueueHandler()
+            self.is_valid = True
+
+    # endregion: SplunkLogger
+
+class StructuredMessage():
+    # region: StructuredMessage
+    def __init__(self, message=None, msg=None, kw=None, **kwargs):
+        # accept message or msg as message
+        message = message if message else msg
+        ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        if kw is None:
+            self.kwargs = kwargs
+        else:
+            self.kwargs = kw
+        self.message = message
+        self.kwargs['message'] = message
+        self.kwargs['timestamp'] = ts
+        self.msg = json.dumps(self.kwargs)
+
+    def __str__(self):
+        return '%s' % (self.msg)
+
+    # endregion: StructuredMessage
 
 def demo():
     just_doit = Logger(start=True)

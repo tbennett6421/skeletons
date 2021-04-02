@@ -3,14 +3,16 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
+__code_version__ = 'v1.0.0'
+
 ## Standard Libraries
-from pprint import pformat
 from pprint import pprint
-import json
-import jsonpickle
-import pickle
-import hashlib
-import collections
+# import pickle
+# import hashlib
+# try:
+#     import jsonpickle as json
+# except ImportError:
+#     import json
 
 """
  BaseObject provides a template of useful methods for all classes to inherit
@@ -18,8 +20,7 @@ import collections
 class BaseObject(object):
 
     def __init__(self, state=None):
-        self.isValid = False
-
+        self.is_valid = False
         if state is None:
             self.tracking_state = False
         else:
@@ -29,78 +30,75 @@ class BaseObject(object):
             else:
                 raise TypeError("state argument was not instance of <State>")
 
+    def keys(self):
+        return list(self.meta().keys())
+
+    def vals(self):
+        return list(self.meta().values())
+
+    def values(self):
+        return self.vals()
+
     def meta(self):
-        return list(self.__dict__.keys())
-
-    def ready(self, throw=False):
-        if throw == True:
-            if self.isValid != True:
-                raise ValueError("Unable to successfully instantiate object of class::"+self.__class__.__name__)
-        else:
-            return self.isValid
-    
-    def frozen(self):
         try:
-            hashable = {}
-            for k,v in self.__dict__.items():
-                k_bool = isinstance(k, collections.Hashable)
-                v_vool = isinstance(v, collections.Hashable)
-                if k_bool is True and v_vool is True:
-                    hashable[k] = v
-                else:
-                    assert(k_bool)
-                    hashable[k] = frozenset(v.__dict__.items())
-            return hashable
-        except Exception as e:
-            raise e
-
-    def serialize(self):
-        try:
-            p = pickle.dumps(self.__dict__)
-            return p.encode(encoding='UTF-8')
-        except RecursionError as e:
-            p = pickle.dumps({'serialize_error': e})
-            return p.encode(encoding='UTF-8')
-        except TypeError as e:
-            p = pickle.dumps({'serialize_error': e})
-            return p.encode(encoding='UTF-8')
-        except Exception as e:
-            p = pickle.dumps({'serialize_error': e})
-            return p.encode(encoding='UTF-8')
-
-    def marshall(self):
-        try:
-            j = jsonpickle.dumps(self.__dict__)
-            return j.encode(encoding='UTF-8')
-        except RecursionError as e:
-            j =  jsonpickle.dumps({'marshall_error': e})
-            return j.encode(encoding='UTF-8')
-        except TypeError as e:
-            j =  jsonpickle.dumps({'marshall_error': e})
-            return j.encode(encoding='UTF-8')
-        except Exception as e:
-            j =  jsonpickle.dumps({'marshall_error': e})
-            return j.encode(encoding='UTF-8')
-
-    def dump(self):
-        try:
-            j = self.marshall()
-            jd = hashlib.sha1(j).hexdigest()
-            p = self.serialize()
-            pd = hashlib.sha1(p).hexdigest()
-            return {
-                "json": j,
-                "json_digest": jd,
-                "json_digest_method": "SHA1",
-                "pickle": p,
-                "pickle_digest": pd,
-                "pickle_digest_method": "SHA1"
-            }
+            return self.__dict__
         except:
             raise
 
+    def ready(self, throw=False, message=None):
+        if throw:
+            if not self.is_valid:
+                if message is None:
+                    raise ValueError("Unable to successfully instantiate object of class::"+self.__class__.__name__)
+                else:
+                    raise ValueError(message)
+            else:
+                return self.is_valid
+        else:
+            return self.is_valid
+
+    # def frozen(self):
+    #     try:
+    #         return frozenset(self.meta())
+    #     except Exception as e:
+    #         return {'frozen_error': e}
+
+    # def marshall(self):
+    #     try:
+    #         return json.dumps(self.__dict__)
+    #     except Exception as e:
+    #         return {'marshall_error': e}
+
+    # def serialize(self):
+    #     try:
+    #         return pickle.dumps(self.__dict__)
+    #     except Exception as e:
+    #         return {'serialize_error': e}
+
+    # def dump(self):
+    #     try:
+    #         j = self.marshall().encode('utf-8')
+    #         jd = hashlib.sha1(j).hexdigest()
+    #         f = repr(self.frozen()).encode('utf-8')
+    #         fd = hashlib.sha1(f).hexdigest()
+    #         p = self.serialize()
+    #         pd = hashlib.sha1(p).hexdigest()
+    #         return {
+    #             "json": j,
+    #             "json_digest": jd,
+    #             "json_digest_method": "SHA1",
+    #             "frozen": f,
+    #             "frozen_digest": fd,
+    #             "frozen_digest_method": "SHA1",
+    #             "pickle": p,
+    #             "pickle_digest": pd,
+    #             "pickle_digest_method": "SHA1"
+    #         }
+    #     except:
+    #         raise
+
     def getProp(self, prop=None):
-        if prop not in self.meta():
+        if prop not in self.keys():
             raise ValueError(str(prop)+" is not a valid property to get()")
         else:
             return getattr(self, prop)
@@ -116,6 +114,8 @@ class Borg(BaseObject):
     __shared_state = {}
     def __init__(self):
         self.__dict__ = self.__shared_state
+        ## Call parent init()
+        super().__init__()
 
 """
  This class is designed to store the program state in a fashion to be used via
@@ -124,11 +124,65 @@ class Borg(BaseObject):
 class State(Borg):
     def __init__(self):
         Borg.__init__(self)
-        self.isValid = True
+        self.is_valid = True
         self.ready(throw=True)
 
+def demo():
+    print("=== Demo ===")
+
+    #region statedemo
+    print("--- State() --- ")
+    print(">>> obj = State()")
+    obj = State()
+    print(">>> state.ready()")
+    print(obj.ready())
+    obj.rgb = [252, 186, 3]
+    obj.hex = "#fcba03"
+    obj.name = "Gold"
+    print(">>> setting attributes on obj")
+    pprint(obj.meta())
+    print(">>> creating new object of type <class State()> ")
+    print(">>> yellow = State()")
+    yellow = State()
+    print(">>> dumping attributes of new object")
+    pprint(yellow.meta())
+    print(">>> setting new attributes on obj (yellow=>red)")
+    obj.rgb = [255, 0, 0]
+    obj.hex = "#ff0000"
+    obj.name = "Red"
+    print(">>> As a result: all state object old/new will now be red")
+    print(">>> dumping attributes of yellow object")
+    pprint(yellow.meta())
+    #endregion statedemo
+    print()
+    #region baseobject
+    print("--- BaseObject() --- ")
+    print(">>> obj = BaseObject()")
+    obj = BaseObject()
+    attrs = []
+    for m in dir(obj):
+        if "__" not in m:
+            attrs.append(m)
+    print(attrs)
+    print(">>> Calling obj.keys()")
+    print(obj.keys())
+    print(">>> Calling obj.vals()")
+    print(obj.vals())
+    print(">>> Calling obj.meta()")
+    print(obj.meta())
+    print(">>> Calling obj.ready()")
+    print(obj.ready())
+    print(">>> Calling obj.ready(throw=True)")
+    try:
+        obj.ready(throw=True)
+    except ValueError:
+        print("Caught Exception and suppressing")
+    #print(">>> Calling obj.dump()")
+    #print(obj.dump())
+    #endregion baseobject
+
 def main():
-    pass
+    demo()
 
 if __name__=="__main__":
     main()

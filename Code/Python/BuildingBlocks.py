@@ -3,8 +3,10 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
+__code_version__ = 'v1.0.0'
+
 ## Standard Libraries
-from pprint import pprint,pformat
+from pprint import pprint
 # import pickle
 # import hashlib
 # try:
@@ -33,7 +35,7 @@ class BaseObject(object):
 
     def vals(self):
         return list(self.meta().values())
-    
+
     def values(self):
         return self.vals()
 
@@ -44,8 +46,8 @@ class BaseObject(object):
             raise
 
     def ready(self, throw=False, message=None):
-        if throw == True:
-            if self.is_valid != True:
+        if throw:
+            if not self.is_valid:
                 if message is None:
                     raise ValueError("Unable to successfully instantiate object of class::"+self.__class__.__name__)
                 else:
@@ -112,6 +114,8 @@ class Borg(BaseObject):
     __shared_state = {}
     def __init__(self):
         self.__dict__ = self.__shared_state
+        ## Call parent init()
+        super().__init__()
 
 """
  This class is designed to store the program state in a fashion to be used via
