@@ -3,7 +3,7 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-__code_version__ = 'v1.0.3'
+__code_version__ = 'v2.0.0'
 
 ## Standard Libraries
 from datetime import datetime
@@ -33,7 +33,6 @@ class Logger(BaseObject):
         self.simple_queue = None
         self.default_logging_name = __name__
         self.default_logging_level = "WARNING"
-        self.default_log_file = '/var/log/fraud/soc-lock/stdout.log'
         self.default_logging_format = '%(asctime)-15s [%(levelname)s] (%(name)s) - %(message)s'
         self.default_logging_format_dictionary = {
             "DEBUG": '%(asctime)-15s [%(levelname)s] (%(name)s) - %(message)s',
@@ -93,11 +92,8 @@ class Logger(BaseObject):
             self.formatter = logging.Formatter(self.log_format)
 
     """ Method to set log_file """
-    def set_log_file(self, log_file):
-        if log_file is None:
-            self.log_file = self.default_log_file
-        else:
-            self.log_file = log_file
+    def set_log_file(self, log_file=None):
+        self.log_file = log_file
 
     """ If class is lazy loaded; call configure with params """
     def configure(self, log_name=None, log_level=None, log_format=None, log_file=None, start=False):
