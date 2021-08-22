@@ -1,0 +1,26 @@
+# - name: ensure npm is available
+#   shell: command -v npm
+#   register: unittest
+#   changed_when: unittest.rc != 0
+#   tags:
+#     - unitTests
+#   environment: 
+#     PATH: "{{ ansible_env.PATH}}:/usr/local/bin"
+
+# - name: ensure node is available
+#   shell: command -v node
+#   register: unittest
+#   changed_when: unittest.rc != 0
+#   tags:
+#     - unitTests
+#   environment: 
+#     PATH: "{{ ansible_env.PATH}}:/usr/local/bin"
+
+# - name: ensure ng is available
+#   shell: command -v ng
+#   register: unittest
+#   changed_when: unittest.rc != 0
+#   tags:
+#     - unitTests
+#   environment: 
+#     PATH: "{{ ansible_env.PATH}}:/usr/local/bin"

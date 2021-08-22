@@ -1,0 +1,26 @@
+- name: set project_root var
+  set_fact:
+    project_root: /opt/app1
+
+- name: Copy application files
+  copy:
+    src: files/opt/app1/
+    dest: "{{project_root}}/"
+  become: true
+
+# # npm install app
+# - name: nav/app$ npm install
+#   shell: "export NG_CLI_ANALYTICS=ci && cd {{project_root}}/nav-app && npm install --verbose"
+#   become: true
+
+# # npm post-install
+# - name: nav/app$ npm run postinstall
+#   shell: "export NG_CLI_ANALYTICS=ci && cd {{project_root}}/nav-app && npm run postinstall"
+#   become: true
+
+# # ng build
+# - name: nav/app$ ng build
+#   shell: "cd {{project_root}}/nav-app && ng build"
+#   become: true
+#   environment: 
+#     PATH: "{{ ansible_env.PATH}}:/usr/local/bin"

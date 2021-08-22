@@ -1,0 +1,23 @@
+## Copy reverse proxy config
+- name: Copy app1 reverse proxy config to sites-available
+  copy:
+    src: files/etc/nginx/sites-available/app1.conf
+    dest: /etc/nginx/sites-available/app1.conf
+    owner: nginx
+    group: root
+    mode: 0440
+  become: true
+  notify:
+    - restart service nginx
+
+## symlink to sites-enabled
+- name: enable app1 reverse proxy to sites-enabled
+  file:
+    src: /etc/nginx/sites-available/app1.conf
+    dest: /etc/nginx/sites-enabled/app1.conf
+    owner: nginx
+    group: root
+    state: link
+  become: true
+  notify:
+    - restart service nginx

@@ -1,0 +1,21 @@
+# npm does not respect proxy env vars; set manually
+- name: set npm proxy
+  command: npm config set proxy http://{{proxy_host}}:{{proxy_port}}
+
+- name: set npm https-proxy
+  command: npm config set https-proxy http://{{proxy_host}}:{{proxy_port}}
+  
+# npm ansible module doesn't install angular correctly
+- name: Install Angular
+  shell: export NG_CLI_ANALYTICS=ci && npm install -g @angular/cli --verbose
+  become: true
+
+# symlink ng
+- name: symlink ng in path
+  file:
+    src: /opt/nodejs/latest/bin/ng
+    dest: /usr/local/bin/ng
+    owner: root
+    group: root
+    state: link
+  become: true

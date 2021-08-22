@@ -1,0 +1,24 @@
+---
+
+# - include: install-dependencies.yml
+#   tags: [install]
+
+- include: install-app.yml
+  tags: [install]
+
+- include: app1-webservice.yml
+  tags: [install]
+
+# - include_tasks: tls-nprod-prep.yml
+#   when: env != "PRD"
+#   tags: [install,tls]
+
+# - include_tasks: tls-prod-prep.yml
+#   when: env == "PRD"
+#   tags: [install,tls]
+
+# - include: tls-post.yml
+#   tags: [install,tls]
+
+#- include: unittests.yml
+#  tags: [install, unitTests]
