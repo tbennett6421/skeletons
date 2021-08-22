@@ -1,0 +1,96 @@
+## Create install dir
+- name: Create script directory
+  file:
+    path: "{{install_directory}}"
+    state: directory
+  become: true
+
+## Create user account
+- name: "Create {{user_account}} group for service"
+  group:
+    name: "{{user_account}}"
+    state: present
+  become: true
+
+- name: "Create {{user_account}} user for service"
+  user:
+    name: "{{user_account}}"
+    group: "{{user_account}}"
+    system: yes
+    shell: /sbin/nologin
+    home: "{{install_directory}}"
+  become: true
+
+- name: Copy application files
+  copy:
+    src: files/opt/domain_stats/
+    dest: "{{install_directory}}"
+  become: true
+
+## Remove env if exists
+- name: "Setup ownership on {{install_directory}}"
+  file:
+    path: "{{install_directory}}/env"
+    state: absent
+  become: true
+
+## Manage script location
+- name: "Setup ownership on {{install_directory}}"
+  file:
+    path: "{{install_directory}}"
+    owner: "{{user_account}}"
+    group: "{{user_account}}"
+    mode: '0644'
+    recurse: yes
+  become: true
+
+- name: "Setup ownership on {{install_directory}}"
+  file:
+    path: "{{install_directory}}"
+    owner: "{{user_account}}"
+    group: "{{user_account}}"
+    mode: '0755'
+  become: true
+
+- name: set executable bit on python or shell scripts 
+  find:
+    path: "{{install_directory}}"
+    patterns: '*.py,*.sh'
+  register: find_result
+
+- name: remove files
+  file:
+    path: "{{ item.path }}"
+    mode: '0755'
+  with_items: "{{ find_result.files }}"
+  become: yes
+  
+- name: Manually create the initial virtualenv
+  command:
+    cmd: "python3 -m venv {{install_directory}}/env"
+    creates: "{{install_directory}}/env"
+  become: yes
+
+- name: install requirements
+  pip: 
+    requirements: "{{item}}"
+    virtualenv: "{{install_directory}}/env"
+    virtualenv_python: python3.6
+  with_items:
+    - "{{install_directory}}/requirements.txt"
+    - "{{install_directory}}/optional-requirements.txt"
+  become: yes
+
+- name: render the systemd unit
+  template:
+    src: templates/etc/systemd/system/domain_stats.service.j2
+    dest: /etc/systemd/system/domain_stats.service
+  become: true
+
+- name: Make sure a service is running
+  systemd:
+    name: "domain_stats"
+    state: started
+    enabled: yes
+    daemon_reload: yes
+  become: yes

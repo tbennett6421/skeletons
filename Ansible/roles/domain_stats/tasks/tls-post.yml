@@ -1,0 +1,12 @@
+- name: ensure files have correct permissions and ownership
+  file:
+    path: "{{item}}"
+    owner: nginx
+    group: nginx
+    mode: '0644'
+  with_items:
+    - "{{PKI_Public_Cert}}"
+    - "{{PKI_Private_Key}}"
+    - "{{PKI_Full_Chain}}"
+  become: yes
+  notify: restart service nginx

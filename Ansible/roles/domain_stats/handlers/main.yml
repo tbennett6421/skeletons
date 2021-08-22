@@ -1,0 +1,15 @@
+---
+
+- name: restart service domain_stats
+  service:
+    name: domain_stats
+    state: restarted
+    daemon_reload: yes
+  become: true
+
+- name: restart service nginx
+  service:
+    name: nginx
+    state: restarted
+    daemon_reload: yes
+  become: true

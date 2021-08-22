@@ -1,0 +1,26 @@
+- name: "copy node certs to {{PKI_Shortname}} if not PRD"
+  copy:
+    src: /etc/nginx/pki/node.crt
+    dest: "{{PKI_Public_Cert}}"
+    remote_src: yes
+  become: yes
+  notify: restart service nginx
+  when: env != "PRD"
+
+- name: "copy node chain to {{PKI_Shortname}} if not PRD"
+  copy:
+    src: /etc/nginx/pki/node.crt
+    dest: "{{PKI_Full_Chain}}"
+    remote_src: yes
+  become: yes
+  notify: restart service nginx
+  when: env != "PRD"
+
+- name: "copy node key to {{PKI_Shortname}} if not PRD"
+  copy:
+    src: /etc/nginx/pki/node.key
+    dest: "{{PKI_Private_Key}}"
+    remote_src: yes
+  become: yes
+  notify: restart service nginx
+  when: env != "PRD"

@@ -1,0 +1,23 @@
+## Copy reverse proxy config
+- name: Copy domain-stats reverse proxy config to sites-available
+  copy:
+    src: files/etc/nginx/sites-available/domain-stats.conf
+    dest: /etc/nginx/sites-available/domain-stats.conf
+    owner: nginx
+    group: root
+    mode: 0440
+  become: true
+  notify:
+    - restart service nginx
+
+## symlink to sites-enabled
+- name: enable domain-stats reverse proxy to sites-enabled
+  file:
+    src: /etc/nginx/sites-available/domain-stats.conf
+    dest: /etc/nginx/sites-enabled/domain-stats.conf
+    owner: nginx
+    group: root
+    state: link
+  become: true
+  notify:
+    - restart service nginx

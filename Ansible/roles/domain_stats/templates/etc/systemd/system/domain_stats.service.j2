@@ -1,0 +1,16 @@
+#jinja2:variable_start_string:'<%', variable_end_string:'%>', trim_blocks: False
+[Unit]
+Description=Domain Stats Alexa Top 1M Lookup
+After=network.target
+
+[Service]
+User=<%user_account%>
+Group=<%user_account%>
+WorkingDirectory=<%install_directory%>
+ExecStart=<%install_directory%>/env/bin/python3 <%install_directory%>/domain_stats.py --alexa <%install_directory%>/top-1m-alexa.csv --cisco <%install_directory%>/top-1m-cisco.csv --preload 100 -d --address <%bind_addr%> --port <%domain_port%>
+PIDFile=/var/run/domainstats.pid
+Restart=always
+#Environment=SOCKS=<%socks_proxy_host%>:<%socks_proxy_port%>
+
+[Install]
+WantedBy=multi-user.target

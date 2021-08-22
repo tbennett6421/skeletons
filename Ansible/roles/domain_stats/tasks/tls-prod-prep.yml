@@ -1,0 +1,103 @@
+# - name: fetch venafi credentials
+#   uri:
+#     url: "{{ cyberark_url }}/AIMWebService/api/Accounts?AppId={{ cyberark_app }}&Safe={{ cyberark_safe }}&Object={{ cyberark_venafi_obj }}"
+#     method: GET
+#     status_code: 200
+#     timeout: 30
+#     use_proxy: false
+#     validate_certs: false
+#   register: cyberark_rest_result
+#   when: env == "PRD"
+
+# - name: fetch Venafi API Key
+#   uri:
+#     url: "{{ venafi_url }}/vedsdk/authorize"
+#     headers:
+#       Accept: application/json
+#     follow_redirects: all
+#     method: POST
+#     body: "{ \"Username\" : \"{{ cyberark_rest_result.json.UserName }}\", \"Password\" : \"{{ cyberark_rest_result.json.Content }}\" }"
+#     body_format: json
+#   register: venafi_api_key
+#   when: env == "PRD"
+
+# - name: download Venafi SSL certificate
+#   uri:
+#     url: "{{ venafi_url }}/vedsdk/Certificates/Retrieve"
+#     headers:
+#       X-Venafi-Api-Key: "{{ venafi_api_key.json.APIKey }}"
+#     method: POST
+#     return_content: yes
+#     body:
+#       CertificateDN: "\\VED\\Policy\\certificates\\SECOPS\\Internal\\{{PKI_Basename}}"
+#       Format: PKCS#12
+#       IncludeChain: true
+#       IncludePrivateKey: true
+#       RootFirstOrder: false
+#       Password: "{{ PKCS12_Password }}"
+#     body_format: json
+#     status_code: 200
+#     validate_certs: False
+#   register: app_certificate
+#   retries: 60
+#   delay: 1
+#   when: env == "PRD"
+
+# - name: Write venafi response to disk
+#   copy:
+#     content: "{{ app_certificate.json.CertificateData }}"
+#     dest: "/tmp/{{ app_certificate.json.Filename }}"
+#   when: env == "PRD"
+
+# - name: Convert response base64 data to pkcs#12 binary
+#   shell:
+#     cmd: "cat /tmp/{{ app_certificate.json.Filename }} | base64 -di > /tmp/{{ app_certificate.json.Filename }}.bin"
+#   when: env == "PRD"
+
+# - name: extract private key from pkcs12
+#   shell:
+#     cmd: "openssl pkcs12 -in /tmp/{{ app_certificate.json.Filename }}.bin -passin env:PKCS12_PASSWORD -nodes -nocerts | sed -ne '/-BEGIN PRIVATE KEY-/,/-END PRIVATE KEY-/p' > {{ PKI_Private_Key }}"
+#   become: yes
+#   environment:
+#     PKCS12_PASSWORD: "{{ PKCS12_Password }}"
+#   when: env == "PRD"
+    
+# - name: extract public certificate from pkcs12
+#   shell:
+#     cmd: "openssl pkcs12 -in /tmp/{{ app_certificate.json.Filename }}.bin -passin env:PKCS12_PASSWORD -nokeys -clcerts | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > {{ PKI_Public_Cert }}"
+#   become: yes
+#   environment:
+#     PKCS12_PASSWORD: "{{ PKCS12_Password }}"
+#   when: env == "PRD"
+
+# - name: extract ca chain from pkcs12
+#   shell:
+#     cmd: "openssl pkcs12 -in /tmp/{{ app_certificate.json.Filename }}.bin -passin env:PKCS12_PASSWORD -nokeys -cacerts -chain | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > /tmp/ca-chain.pem"
+#   environment:
+#     PKCS12_PASSWORD: "{{ PKCS12_Password }}"
+#   when: env == "PRD"
+
+# - name: create full chain
+#   shell:
+#     cmd: "cat {{ PKI_Public_Cert }} /tmp/ca-chain.pem > {{ PKI_Full_Chain }}"
+#   become: yes
+#   when: env == "PRD"
+
+# - name: shred tmp files
+#   shell:
+#     cmd: "shred -fuz /tmp/{{ item}}"
+#   with_items:
+#     - "{{ app_certificate.json.Filename }}"
+#     - "{{ app_certificate.json.Filename }}.bin"
+#     - ca-chain.pem
+#   when: env == "PRD"
+
+# - name: create variables
+#   set_fact:
+#     venafi_rest_username: "{{ cyberark_rest_result.json.UserName }}"
+#     venafi_rest_password: "{{ cyberark_rest_result.json.Content }}"
+#     venafi_api_key: "{{ venafi_api_key.json.APIKey }}"
+#     pkcs12_b64: "{{ app_certificate.json.CertificateData }}"
+#     pkcs12_tmpfile: "/tmp/{{ app_certificate.json.Filename }}"
+#     cacheable: no
+#   when: env == "PRD"

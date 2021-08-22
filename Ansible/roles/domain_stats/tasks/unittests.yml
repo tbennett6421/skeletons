@@ -1,0 +1,11 @@
+- name: check if webservice endpoints are up
+  uri:
+    url: "http://{{bind_addr}}:{{domain_port}}/{{item}}/{{test_endpoint}}"
+    follow_redirects: all
+    status_code: 200
+  changed_when: false
+  tags: unitTests
+  with_items:
+    - "alexa"
+    - "cisco"
+    - "domain"

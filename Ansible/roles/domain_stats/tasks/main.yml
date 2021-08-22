@@ -1,0 +1,20 @@
+---
+
+- include: api-domain-stats.yml
+  tags: [install,api,domain_stats]
+
+- include: reverse-proxy.yml
+  tags: [install]
+
+# - include_tasks: tls-nprod-prep.yml
+#   when: env != "PRD"
+#   tags: [install,tls]
+
+# - include_tasks: tls-prod-prep.yml
+#   when: env == "PRD"
+#   tags: [install,tls]
+
+# - include: tls-post.yml
+#   tags: [install,tls]
+# - include: unittests.yml
+#   tags: [install, unitTests]

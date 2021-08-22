@@ -1,0 +1,7 @@
+---
+## configurable variables for script
+install_directory: "/opt/domain_stats"
+user_account: "api-domainstats"
+bind_addr: '127.0.0.1'
+domain_port: 8080
+test_endpoint: "google.com"
