@@ -1,0 +1,8 @@
+- name: ensure nginx is available
+  shell: command -v nginx
+  register: unittest
+  changed_when: unittest.rc != 0
+  tags:
+    - unitTests
+  environment: 
+    PATH: "{{ ansible_env.PATH}}:/usr/local/bin:/usr/sbin"

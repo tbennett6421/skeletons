@@ -1,0 +1,138 @@
+# install nginx and support utils
+- name: Yum install LATEST nginx server
+  yum:
+    name: [ nginx, httpd-tools ]
+    state: latest
+  become: true
+
+- name: Create a directory for PKI data
+  file:
+    path: /etc/nginx/pki
+    state: directory
+    owner: nginx
+    group: root
+    mode: '0750'
+  become: true
+
+- name: Create a directory for authentication data
+  file:
+    path: /etc/nginx/auth
+    state: directory
+    owner: nginx
+    group: root
+    mode: '0750'
+  become: true
+
+## Updated to reflect the apache/ubuntu ways of managing web services
+# - name: Create a directory for sites-available
+#   file:
+#     path: /etc/nginx/sites-available
+#     state: directory
+#     owner: nginx
+#     group: root
+#     mode: 0750
+#   become: true
+
+# - name: Create a directory for sites-enabled
+#   file:
+#     path: /etc/nginx/sites-enabled
+#     state: directory
+#     owner: nginx
+#     group: root
+#     mode: 0750
+#   become: true
+
+# - name: Copy configs to sites-available
+#   copy:
+#     src: "files/etc/nginx/sites-available/{{item}}"
+#     dest: "/etc/nginx/sites-available/{{item}}"
+#     owner: nginx
+#     group: root
+#     mode: 0440
+#   with_items:
+#     - "0000_http_redir.conf"
+#     - "0001_https_server.conf"
+#   become: true
+#   notify:
+#     - restart service nginx
+
+# ## symlink to sites-enabled
+# - name: enable configs to sites-enabled
+#   file:
+#     src: "/etc/nginx/sites-available/{{item}}"
+#     dest: "/etc/nginx/sites-enabled/{{item}}"
+#     owner: nginx
+#     group: root
+#     state: link
+#   with_items:
+#     - "0000_http_redir.conf"
+#     - "0001_https_server.conf"
+#   become: true
+#   notify:
+#     - restart service nginx
+
+- name: Generate Certificate (only if missing)
+  command: openssl req -newkey rsa:4096 -nodes -keyout /etc/nginx/pki/node.key -x509 -days 3650 -out /etc/nginx/pki/node.crt -subj '/C=US/ST=Florida/L=Jacksonville/O=Availity/OU=Network and Security/CN=nginx'
+  args:
+    creates: /etc/nginx/pki/node.crt
+  become: true
+
+- name: backup default nginx config
+  command: cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.default
+  args:
+    creates: /etc/nginx/nginx.conf.default
+  become: true
+  notify:
+    - restart service nginx
+
+## Copy nginx.confg
+- name: Copy nginx config
+  copy:
+    src: files/etc/nginx/nginx.conf
+    dest: /etc/nginx/nginx.conf
+    owner: nginx
+    group: root
+    mode: 0440
+  become: true
+  notify:
+    - restart service nginx
+
+- name: Copy no-content.html
+  copy:
+    src: files/usr/share/nginx/html/no-content.html
+    dest: /usr/share/nginx/html/no-content.html
+    owner: root
+    group: root
+    mode: 0640
+  become: true
+  notify:
+    - restart service nginx
+
+## Enable the nginx service to start on boot
+- name: Enable nginx service
+  systemd:
+    name: nginx
+    enabled: yes
+  become: true
+
+## Set selinux boolean to allow nginx to funcation as a reverse proxy
+# - name: Allow nginx to READ files in /etc/nginx/pki
+#   sefcontext:
+#     target: '/etc/nginx/pki(/.*)?'
+#     setype: httpd_sys_content_t
+#     state: present
+#   become: true
+
+# - name: Apply new SELinux file context to filesystem
+#   command: /sbin/restorecon -irv /etc/nginx/pki
+#   become: true
+
+## Set selinux boolean to allow nginx to funcation as a reverse proxy
+# - name: Set httpd_can_network_connect flag on and keep it persistent across reboots
+#   seboolean:
+#     name: httpd_can_network_connect
+#     state: yes
+#     persistent: yes
+#   become: true
+#   notify:
+#     - restart service nginx

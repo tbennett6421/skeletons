@@ -1,0 +1,9 @@
+---
+- include: create-nginx-user-account.yml
+  tags: [install]
+
+- include: install-nginx.yml
+  tags: [install]
+
+- include: unittests.yml
+  tags: [install, unitTests]

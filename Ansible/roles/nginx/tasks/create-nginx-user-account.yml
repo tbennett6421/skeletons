@@ -1,0 +1,7 @@
+- name: Create the nginx local user.
+  user:
+    name: nginx
+    comment: Nginx Local Service Account
+    create_home: false
+    shell: /bin/false
+  become: true
