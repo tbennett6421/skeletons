@@ -1,0 +1,20 @@
+---
+
+env: TEST
+
+## Cyberark safe vars
+cyberark_app: APP
+cyberark_safe: SAFE
+cyberark_venafi_obj: OBJECT
+cyberark_url: https://cyberark.example.com
+venafi_url: https://venafi.example.com
+
+## PKI vars
+PKCS12_Password: "T3mporaryPasswordForExport"
+PKI_Output_Directory: "/etc/nginx/pki/"
+#PKI_Shortname: "api" #pass in via role variable
+PKI_Basename: "{{PKI_Shortname}}.example.com"
+PKI_Output_Prefix: "{{PKI_Output_Directory}}{{PKI_Basename}}"
+PKI_Public_Cert: "{{PKI_Output_Directory}}{{PKI_Basename}}.public.pem"
+PKI_Full_Chain: "{{PKI_Output_Directory}}{{PKI_Basename}}.chain.pem"
+PKI_Private_Key: "{{PKI_Output_Directory}}{{PKI_Basename}}.private.key"
