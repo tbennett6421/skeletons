@@ -1,0 +1,40 @@
+---
+# - name: install python-pip package
+#   apt:
+#     name: python-pip
+#     state: present
+#   become: true
+
+- name: install python3 package
+  apt:
+    name: python3
+    state: present
+  become: true
+
+- name: install python-is-python3 package
+  apt:
+    name: python-is-python3
+    state: present
+  become: true
+
+- name: install python3-pip package
+  apt:
+    name: python3-pip
+    state: present
+  become: true
+
+- name: install python3-venv package
+  apt:
+    name: python3-venv
+    state: present
+  become: true
+
+# - name: symlink pip3.6 to pip3 
+#   file:
+#     src: /bin/pip3.6
+#     dest: /usr/local/bin/pip3
+#     owner: root
+#     group: root
+#     state: link
+#   become: true
+#   ignore_errors: yes

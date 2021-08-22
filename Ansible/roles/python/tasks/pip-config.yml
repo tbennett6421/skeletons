@@ -1,0 +1,11 @@
+---
+- name: copy local pip.conf to remote if exists
+  local_action: stat path="../files/etc/pip.conf"
+  register: file
+
+- name: Copy pip.conf to site config
+  copy:
+    src: files/etc/pip.conf
+    dest: /etc/pip.conf
+  become: true
+  when: file.stat.exists

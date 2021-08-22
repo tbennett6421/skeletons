@@ -1,0 +1,9 @@
+---
+- include: python-packages.yml
+  tags: [install]
+
+- include: pip-config.yml
+  tags: [install]
+
+- include: pip-packages.yml
+  tags: [install]

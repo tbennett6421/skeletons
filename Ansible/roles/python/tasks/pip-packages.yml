@@ -1,0 +1,19 @@
+---
+## Python2 packages
+- name: "Install Python packages: {{ python_packages_to_install }}"
+  pip:
+    name: '{{python_packages_to_install}}'
+  become: true
+  # environment:
+  #   http_proxy: http://{{proxy_host}}:{{proxy_port}}
+  #   https_proxy: http://{{proxy_host}}:{{proxy_port}}
+
+## Python3 packages
+- name: "Install Python packages: {{ python_packages_to_install }}"
+  pip:
+    name: '{{python_packages_to_install}}'
+    executable: /usr/local/bin/pip3
+  become: true
+  # environment:
+  #   http_proxy: http://{{proxy_host}}:{{proxy_port}}
+  #   https_proxy: http://{{proxy_host}}:{{proxy_port}}
