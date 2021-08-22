@@ -1,8 +1,8 @@
 # Getting Started with TMUX
 
-Many of the options simply use (prefix), by default this is `Ctrl+b` (C-b). 
+Many of the options simply use (prefix), by default this is `Ctrl+b` (C-b). I tend to remap prefix to match the prefix in GNU screen to be `Ctrl+a` (C-a). 
 
-I tend to remap prefix to match the prefix in GNU screen to be `Ctrl+a` (C-a).
+Any keybinds marked with `[!]` are used specifically in my configuration and are not standard options
 
 tmux uses the concepts of sessions, windows, and panes.
  * Sessions are a instance of tmux that contains windows/panes. An example of a session would be a terminal that is being used to run a backup job.
@@ -58,15 +58,19 @@ tmux rename-window new-name ( prefix + , )
 ```
 # vertical split
 tmux split-window ( prefix + " )
+[!] tmux split-window -h ( prefix + v )
 
 # horizontal split
 tmux split-window -h ( prefix + % ) ~~~ Remember to use shift ~~~
+[!] tmux split-window -h ( prefix + s )
 
 # Chaging active panes
 (prefix) + <arrows>
+[!] ALT + <arrows>
 
 # resize windows
 (prefix) hold control + <arrows>
+[!] Control + <arrows>
 
 # Move pane to left
 ( prefix + { )
