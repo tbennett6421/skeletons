@@ -1,0 +1,15 @@
+#jinja2:variable_start_string:'<%', variable_end_string:'%>', trim_blocks: False
+#!/bin/bash
+
+## Build URLs with Jinja2
+base_url="https://cyberark.example.com/AIMWebService/api/Accounts?AppId=<% cyberark_app %>&Safe=<% cyberark_safe %>"
+epv_url="${base_url}&Object=<% cyberark_httpd_trx_object %>"
+
+## Call CyberArk and get response
+RESP=`curl -s -k --noproxy "*" "$epv_url"`
+
+## Parse out password from response
+PASSWORD=`echo $RESP | python -c 'import json, sys; print json.load(sys.stdin)["Content"]'`
+
+echo $PASSWORD
+exit 0

@@ -1,0 +1,27 @@
+---
+## Install requests for sslexecdialog
+- name: "Install Python packages: requests"
+  pip:
+    name: requests
+    executable: /bin/pip2.7
+  become: true
+  environment:
+    http_proxy: http://{{proxy_host}}:{{proxy_port}}
+    https_proxy: http://{{proxy_host}}:{{proxy_port}}
+
+- name: "Install Python3 packages: requests"
+  pip:
+    name: requests
+    executable: /bin/pip3.6
+  become: true
+  environment:
+    http_proxy: http://{{proxy_host}}:{{proxy_port}}
+    https_proxy: http://{{proxy_host}}:{{proxy_port}}
+
+- name: Generate Certificate (only if missing)
+  command: openssl req -newkey rsa:4096 -nodes -keyout /etc/httpd/pki/node.key -x509 -days 365 -out /etc/httpd/pki/node.crt -subj '/C=US/ST=California/L=/O=San Jose/OU=Security/CN=httpd'
+  args:
+    creates: /etc/httpd/pki/node.crt
+  become: true
+  notify:
+    - restart service httpd

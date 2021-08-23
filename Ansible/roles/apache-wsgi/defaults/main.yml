@@ -1,0 +1,22 @@
+---
+## default variables
+## ....
+
+## Standardized format for variables
+## cyberark_<target>_<id>_obj
+## config_<target>_<id>_<type>
+## keystore_<target>_<id>_prop
+
+## Safe vars
+cyberark_app: APP
+cyberark_safe: SAFE
+cyberark_httpd_trx_object: OBJ
+
+venv_python_packages_to_install:
+  - cx_Oracle
+  - elasticsearch>=6.0.0,<7.0.0
+  - elasticsearch-dsl>=6.0.0,<7.0.0
+  - maltego-trx
+  - requests
+  - six
+  - virtualenv

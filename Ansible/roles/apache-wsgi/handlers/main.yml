@@ -1,0 +1,14 @@
+---
+- name: restart service httpd
+  service:
+    name: httpd
+    state: restarted
+    daemon_reload: yes
+  become: true
+
+#- name: Clear out pycache on restart of httpd
+#  file:
+#    path: /var/www/trx/transforms/__pycache__
+#    state: absent
+#  listen: "restart service httpd"
+#  become: true

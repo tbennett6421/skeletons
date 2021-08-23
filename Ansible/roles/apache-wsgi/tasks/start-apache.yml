@@ -1,0 +1,7 @@
+## Enable the apache service to start on boot
+- name: start apache service
+  systemd:
+    name: httpd
+    state: started
+    enabled: yes
+  become: true

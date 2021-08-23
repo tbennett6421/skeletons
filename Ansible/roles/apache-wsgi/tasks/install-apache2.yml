@@ -1,0 +1,119 @@
+# install apache and support utils
+- name: Yum install LATEST apache server
+  yum:
+    name: [httpd, mod_ssl]
+    state: latest
+  become: true
+
+# install mod_wsgi with python36 support
+- name: Yum install LATEST apache server
+  yum:
+    name: [rh-python36-mod_wsgi]
+    state: latest
+  become: true
+
+- name: Copy the rh-python36 files
+  copy:
+    src: /opt/rh/httpd24/root/etc/httpd/conf.modules.d/10-rh-python36-wsgi.conf
+    dest: /etc/httpd/conf.modules.d/10-rh-python36-wsgi.conf
+    remote_src: yes
+  become: true
+  notify:
+    - restart service httpd
+
+- name: Copy the rh-python36 files
+  copy:
+    src: /opt/rh/httpd24/root/usr/lib64/httpd/modules/mod_rh-python36-wsgi.so
+    dest: /usr/lib64/httpd/modules/mod_rh-python36-wsgi.so
+    owner: root
+    group: root
+    mode: 0755
+    remote_src: yes
+  become: true
+  notify:
+    - restart service httpd
+
+- name: Create a directory for PKI data
+  file:
+    path: /etc/httpd/pki
+    state: directory
+    owner: apache
+    group: root
+    mode: '0750'
+  become: true
+
+- name: Ensure folders are clean
+  file:
+    path: "/etc/httpd/{{item}}"
+    state: absent
+  with_items:
+    - "sites-available"
+    - "sites-enabled"
+  become: true
+
+# Updated to reflect the apache/ubuntu ways of managing web services
+- name: Create a directory for sites-available
+  file:
+    path: "/etc/httpd/{{item}}"
+    state: directory
+    owner: apache
+    group: root
+    mode: 0750
+  with_items:
+    - "sites-available"
+    - "sites-enabled"
+  become: true
+
+- name: Copy Configuration files
+  copy:
+    src: files/etc/httpd/sites-available/
+    dest: /etc/httpd/sites-available/
+  become: true
+  notify:
+    - restart service httpd
+
+- name: Copy conf.d files
+  copy:
+    src: files/etc/httpd/conf.d/
+    dest: /etc/httpd/conf.d/
+  become: true
+  notify:
+    - restart service httpd
+
+- name: Install a stub GetCATrx.sh
+  copy:
+    content: |
+      exit 0
+    dest: /etc/httpd/pki/GetCATrx.sh
+  become: true
+  notify:
+    - restart service httpd
+
+## Enable the apache service to start on boot
+- name: Enable apache service
+  systemd:
+    name: httpd
+    enabled: yes
+  become: true
+
+- name: Copy maltego httpd policy to system
+  copy:
+    src: files/root/maltego-httpd.pp
+    dest: /root/maltego-httpd.pp
+  become: true
+
+- name: install maltego httpd policy
+  command: '/sbin/semodule -i /root/maltego-httpd.pp'
+  become: true
+  notify:
+    - restart service httpd
+
+## Set selinux boolean to allow httpd to connect to database
+- name: Set httpd_can_network_connect flag on and keep it persistent across reboots
+  seboolean:
+    name: httpd_can_network_connect
+    state: yes
+    persistent: yes
+  become: true
+  notify:
+    - restart service httpd

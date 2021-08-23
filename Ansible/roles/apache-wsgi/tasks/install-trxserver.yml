@@ -1,0 +1,38 @@
+- name: Ensure folders are clean
+  file:
+    path: /var/www/trx
+    state: absent
+  become: true
+
+- name: Create a directory for trx
+  file:
+    path: /var/www/trx
+    state: directory
+    owner: apache
+    group: apache
+    mode: 0750
+  become: true
+
+- name: Copy Configuration files
+  copy:
+    src: files/var/www/trx/
+    dest: /var/www/trx/
+  become: true
+  notify:
+    - restart service httpd
+
+# symlink to sites-enabled
+- name: enable configs to sites-enabled
+  file:
+    src: "/etc/httpd/sites-available/{{item}}"
+    dest: "/etc/httpd/sites-enabled/{{item}}"
+    owner: apache
+    group: root
+    state: link
+  with_items:
+    - "trx.conf"
+    - "debug.conf"
+  become: true
+  notify:
+    - restart service httpd
+

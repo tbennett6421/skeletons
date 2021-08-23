@@ -1,0 +1,70 @@
+- name: Capture files to comment
+  find:
+    paths: /etc/httpd/conf.d/
+    file_type: file
+    patterns: '*.conf'
+    excludes: 
+      - "00_example.conf"
+  become: true
+  register: conf_glob
+
+- name: Comment out all included extra conf.d files
+  replace:
+    path: "{{item.path}}"
+    regexp: '^([^#])'
+    replace: '#\1'
+  with_items:
+    - "{{ conf_glob.files }}"
+  become: true
+  notify:
+    - restart service httpd
+
+- name: Comment out autoindex include
+  replace:
+    path: "/etc/httpd/conf.modules.d/00-base.conf"
+    regexp: '^\s*(LoadModule autoindex.*)$'
+    replace: '#\1'
+  become: true
+  notify:
+    - restart service httpd
+
+- name: Comment out CGI include
+  replace:
+    path: "/etc/httpd/conf.modules.d/01-cgi.conf"
+    regexp: '^([^#])'
+    replace: '#\1'
+  become: true
+  notify:
+    - restart service httpd
+
+- name: Remove INDEXES from all Options
+  replace:
+    path: /etc/httpd/conf/httpd.conf
+    regexp: '(Options .*)(Indexes) ?(.*)'
+    replace: '\1\3'
+    backup: yes
+  become: true
+  notify:
+    - restart service httpd
+
+- name: Remove FOLLOWSYMLINKS from all Options
+  replace:
+    path: /etc/httpd/conf/httpd.conf
+    regexp: '(Options .*)(?<!-)(FollowSymLinks) ?(.*)'
+    replace: '\1-\2\3'
+    backup: yes
+  become: true
+  notify:
+    - restart service httpd
+
+- name: Disable mods
+  command:
+    cmd: mv /etc/httpd/modules/{{item}} /etc/httpd/modules/{{item}}.disabled
+    creates: /etc/httpd/modules/{{item}}.disabled
+    removes: /etc/httpd/modules/{{item}}
+  with_items:
+    - "mod_cgi.so"
+    - "mod_autoindex.so"
+  become: true
+  notify:
+    - restart service httpd

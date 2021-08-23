@@ -1,0 +1,28 @@
+---
+- include: create-apache-user-account.yml
+  tags: [install]
+
+- include: install-apache2.yml
+  tags: [install]
+
+- include: harden-apache2.yml
+  tags: [install]
+
+- include: install-trxserver.yml
+  tags: [install]
+
+- include: build-virtualenv.yml
+  tags: [install]
+
+- include: configure-tls-prereq.yml
+  tags: [install]
+
+- include: configure-tls-prod.yml
+  tags: [install]
+  when: ansible_hostname != 'testing-self-service'
+
+- include: start-apache.yml
+  tags: [install]
+
+- include: unittests.yml
+  tags: [install, unitTests]

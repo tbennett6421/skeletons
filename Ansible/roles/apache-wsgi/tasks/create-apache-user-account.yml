@@ -1,0 +1,7 @@
+- name: Create the apache local user.
+  user:
+    name: apache
+    comment: apache Local Service Account
+    create_home: false
+    shell: /sbin/nologin
+  become: true

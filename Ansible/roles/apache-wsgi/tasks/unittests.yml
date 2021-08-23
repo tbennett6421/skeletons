@@ -1,0 +1,28 @@
+- name: force all handlers to run before unittests
+  meta: flush_handlers
+
+- name: ensure httpd is available
+  shell: command -v httpd
+  register: unittest
+  changed_when: unittest.rc != 0
+  tags:
+    - unitTests
+  environment: 
+    PATH: "{{ ansible_env.PATH}}:/usr/local/bin:/usr/sbin" 
+
+- name: ensure httpd is serving pages
+  uri:
+    url: http://localhost:80/
+  register: unittest
+  changed_when: unittest.status != 200
+  tags:
+    - unitTests
+
+- name: ensure httpd is serving pages
+  uri:
+    url: https://localhost:443/
+    validate_certs: no
+  register: unittest
+  changed_when: unittest.status != 200
+  tags:
+    - unitTests

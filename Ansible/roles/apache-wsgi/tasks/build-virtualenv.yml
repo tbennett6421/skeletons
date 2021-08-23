@@ -1,0 +1,55 @@
+---
+- name: "Install Python2 packages: virtualenv"
+  pip:
+    name: virtualenv
+    executable: /bin/pip2.7
+  become: true
+  environment:
+    http_proxy: http://{{proxy_host}}:{{proxy_port}}
+    https_proxy: http://{{proxy_host}}:{{proxy_port}}
+
+- name: "Install Python3 packages: virtualenv"
+  pip:
+    name: virtualenv
+    executable: /bin/pip3.6
+  become: true
+  environment:
+    http_proxy: http://{{proxy_host}}:{{proxy_port}}
+    https_proxy: http://{{proxy_host}}:{{proxy_port}}
+
+- name: Manually create the initial virtualenv
+  command:
+    cmd: python3 -m virtualenv /var/www/trx/venv
+    creates: "/var/www/trx/venv"
+  become: true
+
+- name: assign owner/groups
+  file:
+    path: /var/www/trx/venv
+    state: directory
+    owner: apache
+    group: apache
+  become: true
+
+# install dependencies into virtualenv
+- name: "Install Python generic packages with pip3: {{ python_packages_to_install }}"
+  pip:
+    name: '{{venv_python_packages_to_install}}'
+    virtualenv: /var/www/trx/venv
+  become: true
+  environment:
+    http_proxy: http://{{proxy_host}}:{{proxy_port}}
+    https_proxy: http://{{proxy_host}}:{{proxy_port}}
+
+# Relax SElinux on cx_Oracle shared object
+#  ImportError: /var/www/trx/venv/lib64/python3.6/site-packages/cx_Oracle.cpython-36m-x86_64-linux-gnu.so: failed to map segment from shared object: Permission denied
+- name: "Apply sefcontext to cx_Oracle.so files"
+  sefcontext:
+    target: '/var/www/trx/venv/lib64/.*/site-packages/cx_Oracle.*.so'
+    setype: httpd_sys_script_exec_t 
+    state: present
+  become: true
+
+- name: Apply new SELinux file context to filesystem
+  command: /sbin/restorecon -irv /var/www/trx/venv
+  become: true
