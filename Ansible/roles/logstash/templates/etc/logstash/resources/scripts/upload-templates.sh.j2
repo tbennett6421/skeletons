@@ -1,0 +1,27 @@
+#jinja2:variable_start_string:'<%', variable_end_string:'%>', trim_blocks: False
+#!/bin/bash
+
+## Build URLs with Jinja2
+base_url="https://cyberark.example.com/AIMWebService/api/Accounts?AppId=<% cyberark_app %>&Safe=<% cyberark_safe %>"
+ca_es_url="${base_url}&Object=<% cyberark_es_soclogstash_obj %>"
+
+## Call CyberArk and get response
+CA_ES_RESP=`curl -s -k --noproxy "*" "$ca_es_url"`
+
+## Parse out password from response
+ES_PASSWORD=`echo $CA_ES_RESP | python -c 'import json, sys; print json.load(sys.stdin)["Content"]'`
+
+## loop over index templates
+FILES=/etc/logstash/resources/index_templates/*.json
+for f in $FILES
+do
+    echo "Processing $f file..."
+    index_template=`basename $f .json`
+    curl -vv -i \
+    -u "<% config_es_soclogstash_username %>:$ES_PASSWORD" \
+    -H "Content-Type: application/json" \
+    -XPUT "https://<% elasticsearch_node %>:<% elasticsearch_port %>/_template/$index_template" \
+    -d "@$f" \
+    > /tmp/$index_template.curl.stdout
+done
+exit 0

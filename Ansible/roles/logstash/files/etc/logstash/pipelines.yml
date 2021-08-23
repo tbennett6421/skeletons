@@ -1,0 +1,24 @@
+# This file is where you define your pipelines. You can define multiple.
+# For more information on multiple pipelines, see the documentation:
+#   https://www.elastic.co/guide/en/logstash/current/multiple-pipelines.html
+
+- pipeline.id: default
+  queue.type: persisted
+  path.config: "/etc/logstash/conf.d/*.conf"
+
+#- pipeline.id: soc
+#  queue.type: persisted
+#  path.config: "/etc/logstash/soc.d/*.conf"
+
+#- pipeline.id: buffered-splunk 
+#  path.config: "/etc/logstash/splunk.d/*.conf"
+#  pipeline.workers: 1
+#  queue.type: persisted
+
+#- pipeline.id: buffered-siem
+#  queue.type: persisted
+#  path.config: "/etc/logstash/siem.d/*.conf"
+
+#- pipeline.id: buffered-es
+#  queue.type: persisted
+#  path.config: "/etc/logstash/es.d/*.conf"

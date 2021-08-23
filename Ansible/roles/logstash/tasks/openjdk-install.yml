@@ -1,0 +1,20 @@
+- name: Install OpenJDK8
+  yum:
+    name: java-1.8.0-openjdk
+    state: installed
+  become: true
+
+- name: ensure java is available
+  command: command -v java
+  register: unittest
+  changed_when: unittest.rc != 0
+  tags:
+    - unitTests
+
+#- name: symlink /usr/java/default for openjdk
+#  file:
+#    src: /usr/lib/jvm/java-1.8.0
+#    dest: /usr/java/latest
+#    force: yes
+#    state: link
+#  become: true

@@ -1,0 +1,43 @@
+#jinja2:variable_start_string:'<%', variable_end_string:'%>', trim_blocks: False
+
+## Pull in user data from database
+input {
+  jdbc {
+    id => "0001_input_jdbc-user-data.conf :: input//jdbc(user-data)"
+
+    ## Maximum number of retries
+    connection_retry_attempts => 3
+
+    ## Number of seconds to wait between retries
+    connection_retry_attempts_wait_time => 5
+
+    ## Connection pool configuration. The amount of seconds to wait to acquire a connection before raising a PoolTimeoutError
+    jdbc_pool_timeout => 10
+
+    ## Connection pool configuration. Validate connection before use.
+    jdbc_validate_connection => true
+
+    ## Connection pool configuration. How often to validate a connection (in seconds)
+    jdbc_validation_timeout => 1800
+
+    ## JDBC results parameters
+    jdbc_fetch_size => 1000000
+
+    ## JDBC connection details
+    jdbc_driver_library => "/etc/logstash/soc.d/resources/drivers/ImpalaJDBC41.jar"
+    jdbc_driver_class => "com.cloudera.impala.jdbc41.Driver"
+    # From jinja.ansible.inventory
+    jdbc_connection_string => "jdbc:impala://<% hadoop_node %>:21050/default;AuthMech=3;SSL=1;CAIssuedCertNamesMismatch=1;AllowSelfSignedCerts=1" 
+    jdbc_user => "<% config_hadoop_datalake_username %>"
+    # From logstash.keystore rendered using jinja.ansible.inventory
+    jdbc_password => "${<% keystore_hadoop_datalake_prop %>}"
+    statement_filepath => "/etc/logstash/soc.d/resources/sql-statements/user-query-hadoop.sql"
+
+    # Run this before customer input query
+    schedule => "<% user_data_schedule_cron %>"
+
+    add_field => { "data_type" => "user-data" }
+    add_field => { "data_source" => "master.user" }
+    add_field => { "data_source_technology" => "hadoop" }
+  }
+}

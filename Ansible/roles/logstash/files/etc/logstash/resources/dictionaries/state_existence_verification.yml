@@ -1,0 +1,57 @@
+AL: http://arc-sos.state.al.us/CGI/corpname.mbr/input
+AK: https://www.commerce.alaska.gov/cbp/main/Search/Entities
+AZ: https://ecorp.azcc.gov/EntitySearch/Index
+AR: https://www.sos.arkansas.gov/corps/search_all.php
+CA: https://businesssearch.sos.ca.gov/
+CO: https://www.sos.state.co.us/biz/BusinessEntityCriteria.do
+CT: https://www.concord-sots.ct.gov/CONCORD/online?sn=PublicInquiry&eid=9740
+DE: https://icis.corp.delaware.gov/Ecorp/EntitySearch/NameSearch.aspx
+FL: http://search.sunbiz.org/Inquiry/CorporationSearch/ByName
+GA: https://ecorp.sos.ga.gov/BusinessSearch
+HI: https://hbe.ehawaii.gov/documents/search.html
+ID: https://sosbiz.idaho.gov/search/business
+IL: https://www.ilsos.gov/corporatellc/CorporateLlcController
+IN: https://bsd.sos.in.gov/publicbusinesssearch
+IA: https://sos.iowa.gov/search/business/search.aspx
+KS: https://www.kansas.gov/bess/flow/main
+KY: https://app.sos.ky.gov/ftsearch/
+LA: https://coraweb.sos.la.gov/CommercialSearch/CommercialSearch.aspx
+ME: https://icrs.informe.org/nei-sos-icrs/ICRS?MainPage=x
+MD: https://egov.maryland.gov/BusinessExpress/EntitySearch
+MA: http://corp.sec.state.ma.us/corpweb/CorpSearch/CorpSearch.aspx
+MI: https://cofs.lara.state.mi.us/corpweb/CorpSearch/CorpSearch.aspx
+MN: https://mblsportal.sos.state.mn.us/Business/Search
+MS: https://corp.sos.ms.gov/corp/portal/c/page/corpBusinessIdSearch/portal.aspx
+MO: https://bsd.sos.mo.gov/BusinessEntity/BESearch.aspx
+MT: Not Implemented Yet
+NE: https://www.nebraska.gov/sos/corp/corpsearch.cgi
+NV: Not Implemented Yet
+NH: https://quickstart.sos.nh.gov/online/Account/LandingPage
+NJ: https://www.njportal.com/DOR/BusinessNameSearch/Search/BusinessName
+NM: https://portal.sos.state.nm.us/BFS/online/CorporationBusinessSearch
+NY: https://appext20.dos.ny.gov/corp_public/CORPSEARCH.ENTITY_SEARCH_ENTRY
+NC: https://www.sosnc.gov/online_services/search/by_title/_Business_Registration
+ND: https://firststop.sos.nd.gov/search/business
+OH: https://businesssearch.sos.state.oh.us/
+OK: https://www.sos.ok.gov/corp/corpInquiryFind.aspx
+OR: https://sos.oregon.gov/business/Pages/find.aspx
+PA: https://www.corporations.pa.gov/search/corpsearch
+RI: http://business.sos.ri.gov/CorpWeb/CorpSearch/CorpSearch.aspx
+SC: https://businessfilings.sc.gov/BusinessFiling/Entity/Search
+SD: https://sosenterprise.sd.gov/BusinessServices/Business/FilingSearch.aspx
+TN: https://tnbear.tn.gov/Ecommerce/FilingSearch.aspx
+TX: https://mycpa.cpa.state.tx.us/coa/
+UT: https://secure.utah.gov/bes/
+VT: https://www.vtsosonline.com/online/BusinessInquire
+VA: https://sccefile.scc.virginia.gov/Find/Business
+WA: https://ccfs.sos.wa.gov/
+WV: https://apps.wv.gov/SOS/BusinessEntitySearch/
+WI: https://www.wdfi.org/apps/CorpSearch/Search.aspx
+WY: https://wyobiz.wy.gov/Business/FilingSearch.aspx
+DC: Not Implemented Yet
+AS: Not Implemented Yet
+GU: Not Implemented Yet
+MP: Not Implemented Yet
+PR: Not Implemented Yet
+UM: Not Implemented Yet
+VI: Not Implemented Yet

@@ -1,0 +1,93 @@
+---
+################################################################################
+# Manage CONF.D default pipeline
+################################################################################
+# - name: Clean pipeline directory conf.d
+#   file:
+#     path: /etc/logstash/conf.d
+#     state: absent
+#   become: true
+
+# - name: Create pipeline directory conf.d
+#   file:
+#     path: /etc/logstash/conf.d
+#     state: directory
+#     owner: logstash
+#     group: logstash
+#   become: true
+
+#- name: Copy Configuration files
+#  copy:
+#    src: etc/logstash/conf.d/
+#    dest: /etc/logstash/conf.d/
+#  become: true
+
+################################################################################
+# Manage SOC.D
+################################################################################
+- name: Clean pipeline directory soc.d
+  file:
+    path: /etc/logstash/soc.d
+    state: absent
+  become: true
+
+- name: Create soc pipeline directory soc.d
+  file:
+    path: /etc/logstash/soc.d
+    state: directory
+    owner: logstash
+    group: logstash
+  become: true
+
+- name: Copy Configuration files
+  copy:
+    src: files/etc/logstash/soc.d/
+    dest: /etc/logstash/soc.d/
+  become: true
+
+################################################################################
+# Render SOC.D
+################################################################################
+
+- name: Copy Logstash/0000
+  template:
+    src: templates/etc/logstash/soc.d/0000_input_jdbc-query-count.conf.j2
+    dest: /etc/logstash/soc.d/0000_input_jdbc-query-count.conf
+  become: true
+  when: ansible_hostname != 'testing-self-service'
+
+- name: Copy Logstash/0001
+  template:
+    src: templates/etc/logstash/soc.d/0001_input_jdbc-user-data.conf.j2
+    dest: /etc/logstash/soc.d/0001_input_jdbc-user-data.conf
+  become: true
+  when: ansible_hostname != 'testing-self-service'
+
+- name: Copy Logstash/0002
+  template:
+    src: templates/etc/logstash/soc.d/0002_input_jdbc-customer-data.conf.j2
+    dest: /etc/logstash/soc.d/0002_input_jdbc-customer-data.conf
+  become: true
+  when: ansible_hostname != 'testing-self-service'
+
+- name: Copy Logstash/9999
+  template:
+    src: templates/etc/logstash/soc.d/9999_output_es.conf.j2
+    dest: /etc/logstash/soc.d/9999_output_es.conf
+  become: true
+  when: ansible_hostname != 'testing-self-service'
+
+################################################################################
+# Test PIPELINE
+################################################################################
+- name: Test pipeline config for syntax errors
+  command: "/usr/share/logstash/bin/logstash --debug --config.test_and_exit --path.settings /etc/logstash/"
+  register: unittest
+  changed_when: unittest.rc != 0
+  become: true
+  tags:
+    - unitTests
+  environment:
+    ES_PASSWORD: "foobar"
+    ORACLE_PASSWORD: "foobar"
+    HADOOP_PASSWORD: "foobar"

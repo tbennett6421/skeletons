@@ -1,0 +1,90 @@
+## Create path.data directories
+- name: Create log folder directory structure
+  file:
+    path: /data/logs/logstash
+    state: directory
+    owner: logstash
+    group: logstash
+  become: true
+
+- name: Create persistance directory structure
+  file:
+    path: /data/logstash
+    state: directory
+    owner: logstash
+    group: logstash
+  become: true
+
+- name: Clean resources directory
+  file:
+    path: /etc/logstash/resources
+    state: absent
+  become: true
+
+- name: Create resources directory
+  file:
+    path: /etc/logstash/resources
+    state: directory
+    owner: logstash
+    group: logstash
+  become: true
+
+- name: sync resources directory
+  copy:
+    src: files/etc/logstash/resources/
+    dest: /etc/logstash/resources/
+  become: true
+
+- name: render upload-templates.sh
+  template:
+    src: templates/etc/logstash/resources/scripts/upload-templates.sh.j2
+    dest: /etc/logstash/resources/scripts/upload-templates.sh
+    owner: root
+    group: root
+    mode: '0750'
+  become: true
+  when: ansible_hostname != 'testing-self-service'
+
+- name: exec upload-templates.sh
+  shell: /etc/logstash/resources/scripts/upload-templates.sh
+  become: true
+  when: ansible_hostname != 'testing-self-service'
+
+- name: Copy logstash.yml files
+  copy:
+    src: files/etc/logstash/logstash.yml
+    dest: /etc/logstash/logstash.yml
+  become: true
+
+- name: Render jvm.options files
+  template:
+    src: templates/etc/logstash/jvm.options.j2
+    dest: /etc/logstash/jvm.options
+  become: true
+  notify: restart service logstash
+
+- name: Replace java heap ms
+  lineinfile:
+    dest: /etc/logstash/jvm.options
+    regexp: '^(.*)Xms1(.*)$'
+    line: "-Xms{{ (memtotal * logstash_heap_ratio )|int|abs }}m"
+    backrefs: yes
+  become: true
+  notify: restart service logstash
+
+- name: Replace java heap mx
+  lineinfile:
+    dest: /etc/logstash/jvm.options
+    regexp: '^(.*)Xmx1(.*)$'
+    line: "-Xmx{{ (memtotal * logstash_heap_ratio )|int|abs }}m"
+    backrefs: yes
+  become: true
+  notify: restart service logstash
+
+- name: rotatelog logstash
+  copy:
+    src: files/etc/logrotate.d/logstash
+    dest: /etc/logrotate.d/logstash
+    mode: 0644
+    owner: root
+  become: true

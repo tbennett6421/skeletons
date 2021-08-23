@@ -1,0 +1,30 @@
+{
+    "order": 1,
+    "version": 2020040601,
+    "index_patterns": [
+        "logstash-datasets-ilm-*"
+    ],
+    "settings": {
+        "index": {
+            "lifecycle": {
+                "name": "logstash-datasets-ilm-*"
+            },
+            "mapping": {
+                "nested_fields": {
+                    "limit": "50"
+                },
+                "total_fields": {
+                    "limit": "10000"
+                },
+                "depth": {
+                    "limit": "20"
+                }
+            },
+            "refresh_interval": "5s",
+            "number_of_shards": "1",
+            "number_of_replicas": "1"
+        }
+    },
+    "mappings": {},
+    "aliases": {}
+}

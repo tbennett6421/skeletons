@@ -1,0 +1,38 @@
+#jinja2:variable_start_string:'<<', variable_end_string:'>>', block_start_string: '<%', block_end_string:'%>', trim_blocks: False
+filter {
+    if [data_type] == "database_row_count" {
+        mutate { 
+            id => "9999_output_es.conf :: filter//mutate-add_field(target_index[database_row_count])"
+            add_field => { "[@metadata][target_index]" => "logstash-datasets-meta-database-row-count" }
+        }## end-mutate
+    } else if [data_type] == "customer-data" {
+        mutate { 
+            id => "9999_output_es.conf :: filter//mutate-add_field(target_index[customerdata])"
+            add_field => { "[@metadata][target_index]" => "logstash-datasets-ilm-customerdata-%{+YYYY.MM.dd}" }
+        }## end-mutate
+    } else if [data_type] == "user-data" {
+        mutate { 
+            id => "9999_output_es.conf :: filter//mutate-add_field(target_index[userdata])"
+            add_field => { "[@metadata][target_index]" => "logstash-datasets-ilm-userdata-%{+YYYY.MM.dd}" }
+        }## end-mutate
+    } else {
+        mutate { 
+            id => "9999_output_es.conf :: filter//mutate-add_field(target_index[unknown])"
+            add_field => { "[@metadata][target_index]" => "logstash-datasets-ilm-unknown-%{+YYYY.MM.dd}" }
+        }## end-mutate
+    }
+} ## End-filter
+
+output {
+    elasticsearch {
+        id => "9999_output_es.conf :: output//elasticsearch()"
+        ## From jinja.ansible.inventory
+        hosts => [<% for node in elasticsearch_nodes %> "<<node>>:<<elasticsearch_port>>" <% if not loop.last %>,<% endif %><% endfor %>]
+        ## From jinja.roles.logstash.defaults
+        user => "<< config_es_soclogstash_username >>"
+        ## From logstash.keystore rendered using jinja.roles.logstash.defaults
+        password => "${<< keystore_es_user_prop >>}"
+        index => "%{[@metadata][target_index]}"
+        ssl_certificate_verification => true
+    }
+}

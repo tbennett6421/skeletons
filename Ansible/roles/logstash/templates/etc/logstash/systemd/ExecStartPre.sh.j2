@@ -1,0 +1,35 @@
+#jinja2:variable_start_string:'<%', variable_end_string:'%>', trim_blocks: False
+#!/bin/bash
+
+## Build URLs with Jinja2
+base_url="https://cyberark.example.com/AIMWebService/api/Accounts?AppId=<% cyberark_app %>&Safe=<% cyberark_safe %>"
+ca_es_url="${base_url}&Object=<% cyberark_es_soclogstash_obj %>"
+ora_datamart_url="${base_url}&Object=<% cyberark_ora_datamart_obj %>"
+ora_tracker_url="${base_url}&Object=<% cyberark_ora_tracker_obj %>"
+hadoop_datalake_url="${base_url}&Object=<% cyberark_hadoop_datalake_obj %>"
+
+## Call CyberArk and get response
+CA_ES_RESP=`curl -s -k --noproxy "*" "$ca_es_url"`
+CA_ORACLE_DATAMART_RESP=`curl -s -k --noproxy "*" "$ora_datamart_url"`
+CA_ORACLE_TRACKER_RESP=`curl -s -k --noproxy "*" "$ora_tracker_url"`
+CA_HADOOP_DATALAKE_RESP=`curl -s -k --noproxy "*" "$hadoop_datalake_url"`
+
+## Parse out password from response
+ES_PASSWORD=`echo $CA_ES_RESP | python -c 'import json, sys; print json.load(sys.stdin)["Content"]'`
+ORA_DATAMART_PASSWORD=`echo $CA_ORACLE_DATAMART_RESP | python -c 'import json, sys; print json.load(sys.stdin)["Content"]'`
+ORA_TRACKER_PASSWORD=`echo $CA_ORACLE_TRACKER_RESP | python -c 'import json, sys; print json.load(sys.stdin)["Content"]'`
+HADOOP_DATALAKE_PASSWORD=`echo $CA_HADOOP_DATALAKE_RESP | python -c 'import json, sys; print json.load(sys.stdin)["Content"]'`
+
+## Call cleanup
+bash /etc/logstash/systemd/ExecStopPost.sh
+
+## Create Keystore
+yes | /usr/share/logstash/bin/logstash-keystore --path.settings /etc/logstash create
+
+## Populate Keystore
+echo $ES_PASSWORD | /usr/share/logstash/bin/logstash-keystore --path.settings /etc/logstash add <% keystore_es_user_prop %>
+echo $ORA_DATAMART_PASSWORD | /usr/share/logstash/bin/logstash-keystore --path.settings /etc/logstash add <% keystore_ora_datamart_prop %>
+echo $ORA_TRACKER_PASSWORD | /usr/share/logstash/bin/logstash-keystore --path.settings /etc/logstash add <% keystore_ora_tracker_prop %>
+echo $HADOOP_DATALAKE_PASSWORD | /usr/share/logstash/bin/logstash-keystore --path.settings /etc/logstash add <% keystore_hadoop_datalake_prop %>
+
+exit 0

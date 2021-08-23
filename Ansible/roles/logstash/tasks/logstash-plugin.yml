@@ -1,0 +1,13 @@
+# - name: Install syslog input plugin
+#   logstash_plugin:
+#     state: present
+#     name: logstash-input-syslog
+#   become: true
+#   notify: restart service logstash
+
+# - name: Install syslog output plugin
+#   logstash_plugin:
+#     state: present
+#     name: logstash-output-syslog
+#   become: true
+#   notify: restart service logstash

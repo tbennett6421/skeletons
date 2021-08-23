@@ -1,0 +1,24 @@
+{
+    "query": {
+        "bool": {
+            "must": [
+                {
+                    "match_phrase": {
+                        "organization.id": {
+                            "query": "%{[customer_id]}"
+                        }
+                    }
+                },
+                {
+                    "range": {
+                        "@timestamp": {
+                            "gte": "now-24h",
+                            "lte": "now",
+                            "format": "epoch_millis"
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

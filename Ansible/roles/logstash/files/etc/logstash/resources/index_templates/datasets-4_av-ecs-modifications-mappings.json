@@ -1,0 +1,89 @@
+{
+  "order" : 4,
+  "version": 2020111801,
+  "index_patterns" : [
+    "logstash-datasets-ilm-*"
+  ],
+  "mappings" : {
+    "doc": {
+      "properties" : {
+        "enrichments": {
+          "properties": {
+            "source" : {
+              "properties" : {
+                "anomali" : {
+                  "ignore_above" : 1024,
+                  "type" : "keyword"
+                }
+              }
+            },
+            "user": {
+              "properties": {
+                "email_domain" : {
+                  "properties": {
+                    "alexa_top_sites_rank" : {
+                      "type" : "long"
+                    },
+                    "cisco_umbrella_rank" : {
+                      "type" : "long"
+                    },
+                    "whois_data" : {
+                      "type" : "keyword"
+                    }
+                  }
+                }
+              }
+            } 
+          }
+        },
+        "organization" : {
+          "properties" : {
+            "npi" : {
+              "ignore_above" : 10,
+              "type" : "keyword"
+            },
+            "tax_id" : {
+              "ignore_above" : 11,
+              "type" : "keyword"
+            },
+            "uid" : {
+              "ignore_above" : 20,
+              "type" : "keyword"
+            }
+          }
+        },
+        "user": {
+          "properties": {
+            "email_domain": {
+              "ignore_above": 1024,
+              "type": "keyword"
+            },
+            "email_tld": {
+              "ignore_above": 1024,
+              "type": "keyword"
+            },
+            "email_user": {
+              "ignore_above": 1024,
+              "type": "keyword"
+            },
+            "admin": {
+              "type": "boolean"
+            },
+            "first_name": {
+              "ignore_above": 1024,
+              "type": "keyword"
+            },
+            "last_name": {
+              "ignore_above": 1024,
+              "type": "keyword"
+            },
+            "uid": {
+              "ignore_above": 20,
+              "type": "keyword"
+            }
+          }
+        }
+      }
+    }
+  }
+}

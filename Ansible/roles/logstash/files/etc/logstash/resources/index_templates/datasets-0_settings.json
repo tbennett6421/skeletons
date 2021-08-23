@@ -1,0 +1,27 @@
+{
+  "order" : 0,
+  "version": 2019092401,
+  "index_patterns" : [
+    "logstash-datasets-*"
+  ],
+  "settings" : {
+    "index" : {
+      "mapping": {
+        "total_fields": {
+          "limit": 10000
+        },
+        "depth": {
+          "limit": 20
+        },
+        "nested_fields": {
+          "limit": 50
+        }
+      },
+      "number_of_shards" : "1",
+      "number_of_replicas" : "1",
+      "refresh_interval": "5s"
+  },
+  "mappings" : { },
+  "aliases" : { }
+  }
+}

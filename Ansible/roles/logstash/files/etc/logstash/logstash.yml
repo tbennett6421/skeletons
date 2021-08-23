@@ -1,0 +1,19 @@
+pipeline.batch.size: 18000
+pipeline.batch.delay: 5
+path.data: /data/logstash
+path.logs: /data/logs/logstash
+config.reload.automatic: true
+config.reload.interval: 5s
+# Disabling persisted queues. May re-enable if we begin tracking columns
+# https://www.elastic.co/guide/en/logstash/6.7/logstash-settings-file.html
+#queue.type: persisted 
+queue.type: memory
+#path.queue: /data/logstash/queue
+#queue.page_capacity: 64mb
+#queue.max_bytes: 1024mb
+#queue.drain: true
+#queue.checkpoint.writes: 1024
+#queue.checkpoint.acks: 1024
+#queue.checkpoint.interval: 1000  #un-documented
+#xpack.monitoring.enabled: true
+#xpack.monitoring.elasticsearch.url: ["http://10.1.101.191:9200","http://10.1.101.192:9200","http://10.1.101.193:9200"]

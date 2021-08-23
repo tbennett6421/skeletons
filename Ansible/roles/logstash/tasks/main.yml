@@ -1,0 +1,24 @@
+---
+- include: init-creds.yml
+  tags: [init,install]
+
+- include: openjdk-install.yml
+  tags: [install]
+
+- include: elastic-6.x-repo.yml
+  tags: [install]
+
+- include: logstash-install.yml
+  tags: [install]
+  
+- include: logstash-postinstall.yml
+  tags: [install]
+
+- include: logstash-config-update.yml
+  tags: [install,conf_update]
+
+- include: logstash-pipeline-update.yml
+  tags: [install,pipeline_update]
+
+#- include: logstash-plugin.yml
+#  tags: [install,plugin_install]

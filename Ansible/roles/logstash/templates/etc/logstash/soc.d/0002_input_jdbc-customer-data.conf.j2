@@ -1,0 +1,62 @@
+#jinja2:variable_start_string:'<<', variable_end_string:'>>', block_start_string: '<%', block_end_string:'%>', trim_blocks: False
+input {
+  jdbc {
+    id => "0002_input_jdbc-customer-data.conf :: input//jdbc(customer-data)"
+
+    ## Maximum number of retries
+    connection_retry_attempts => 3
+
+    ## Number of seconds to wait between retries
+    connection_retry_attempts_wait_time => 5
+
+    ## Connection pool configuration. The amount of seconds to wait to acquire a connection before raising a PoolTimeoutError
+    jdbc_pool_timeout => 10
+
+    ## Connection pool configuration. Validate connection before use.
+    jdbc_validate_connection => true
+
+    ## Connection pool configuration. How often to validate a connection (in seconds)
+    jdbc_validation_timeout => 1800
+
+    ## JDBC results parameters
+    jdbc_fetch_size => 1000000
+
+    ## JDBC connection details
+    jdbc_driver_library => "/etc/logstash/soc.d/resources/drivers/ImpalaJDBC41.jar"
+    jdbc_driver_class => "com.cloudera.impala.jdbc41.Driver"
+    # From jinja.ansible.inventory
+    jdbc_connection_string => "jdbc:impala://<< hadoop_node >>:21050/default;AuthMech=3;SSL=1;CAIssuedCertNamesMismatch=1;AllowSelfSignedCerts=1" 
+    jdbc_user => "<< config_hadoop_datalake_username >>"
+    # From logstash.keystore rendered using jinja.ansible.inventory
+    jdbc_password => "${<< keystore_hadoop_datalake_prop >>}"
+    statement_filepath => "/etc/logstash/soc.d/resources/sql-statements/customer-query-hadoop.sql"
+
+    schedule => "<< customer_data_schedule_cron >>"
+
+    add_field => { "data_type" => "customer-data" }
+    add_field => { "data_source" => "master.customer" }
+    add_field => { "data_source_technology" => "hadoop" }
+
+  }
+}
+
+filter {
+    if [data_type] == "customer-data" and [customer_id] != "NA" {
+        elasticsearch {
+
+            id => "0002_input_jdbc-customer-data.conf :: filter//elasticsearch(org-to-user)"
+            ## From jinja.ansible.inventory
+            hosts => [<% for node in elasticsearch_nodes %> "<<node>>:<<elasticsearch_port>>" <% if not loop.last %>,<% endif %><% endfor %>]
+            ## From jinja.roles.logstash.defaults
+            user => "<< config_es_soclogstash_username >>"
+            ## From logstash.keystore rendered using jinja.roles.logstash.defaults
+            password => "${<< keystore_es_user_prop >>}"
+            index => 'logstash-datasets-ilm-userdata-*'
+
+            query_template => "/etc/logstash/soc.d/resources/dsl-searches/where-organization_id.json"
+            fields => {
+                "[user][name]" => "[user][name]"
+            }
+        } ## end elasticsearch
+    } ## end if-customer-data
+}

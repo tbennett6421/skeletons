@@ -1,0 +1,107 @@
+## Install logstash package from elastic 6 repo
+- name: Install latest version of Logstash
+  yum:
+    name: logstash
+    enablerepo: elastic-6.x
+    state: present
+  become: true
+
+## Prep the systemd services
+- name: Create systemd script directories
+  file:
+    path: /etc/logstash/systemd
+    state: directory
+    owner: root
+    group: root
+  become: true
+
+## Cleanup old
+- name: Find existing sh files
+  find:
+    paths: /etc/logstash/systemd
+    patterns: '*.sh'
+  become: true
+  register: sh_glob
+
+- name: Remove existing sh files
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  become: true
+  with_items:
+    - "{{ sh_glob.files }}"
+
+## Copy scripts over and apply J2 template
+- name: Copy Logstash/ExecStartPre
+  template:
+    src: templates/etc/logstash/systemd/ExecStartPre.sh.j2
+    dest: /etc/logstash/systemd/ExecStartPre.sh
+    owner: root
+    group: root
+    mode: 0550
+  become: true
+
+- name: Copy Logstash/ExecStopPost
+  template:
+    src: templates/etc/logstash/systemd/ExecStopPost.sh.j2
+    dest: /etc/logstash/systemd/ExecStopPost.sh
+    owner: root
+    group: root
+    mode: 0550
+  become: true
+
+## Modify systemd.unit
+- name: Copy systemd unit file
+  copy:
+    src: files/etc/systemd/system/logstash.service
+    dest: /etc/systemd/system/logstash.service
+    owner: root
+    group: root
+    mode: 0550
+  become: true
+  notify:
+    - restart service logstash
+
+## Enable the Logstash service to start on boot
+- name: Enable logstash service
+  systemd:
+    name: logstash
+    enabled: yes
+  become: true
+
+## Setup symlinks
+- name: symlink logstash in path
+  file:
+    src: /usr/share/logstash/bin/logstash
+    dest: /usr/local/bin/logstash
+    owner: root
+    group: root
+    state: link
+  become: true
+
+- name: symlink logstash-keystore in path
+  file:
+    src: /usr/share/logstash/bin/logstash-keystore
+    dest: /usr/local/bin/logstash-keystore
+    owner: root
+    group: root
+    state: link
+  become: true
+
+- name: symlink logstash-plugin in path
+  file:
+    src: /usr/share/logstash/bin/logstash-plugin
+    dest: /usr/local/bin/logstash-plugin
+    owner: root
+    group: root
+    state: link
+  become: true
+
+- name: ensure logstash is available
+  command: command -v logstash
+  register: unittest
+  changed_when: unittest.rc != 0
+  tags:
+    - unitTests
+  environment: 
+    PATH: "{{ ansible_env.PATH}}:/usr/local/bin"

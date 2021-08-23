@@ -1,0 +1,18 @@
+- name: fetch Elasticsearch credentials
+  uri:
+    url: "https://cyberark.example.com/AIMWebService/api/Accounts?AppId={{ cyberark_app }}&Safe={{ cyberark_safe }}&Object={{ cyberark_es_soclogstash_obj }}"
+    method: GET
+    status_code: 200
+    timeout: 30
+    use_proxy: false
+    validate_certs: false
+  register: es_cyberark_rest_result
+  #delegate_to: localhost
+  when: ansible_hostname != "testing-self-service"
+
+- name: create variables
+  set_fact:
+    ES_Username: "{{ es_cyberark_rest_result.json.UserName }}"
+    ES_Password: "{{ es_cyberark_rest_result.json.Content }}"
+    cacheable: no
+  when: ansible_hostname != "testing-self-service"

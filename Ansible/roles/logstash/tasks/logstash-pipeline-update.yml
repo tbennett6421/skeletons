@@ -1,0 +1,6 @@
+- name: Copy pipelines.yml file
+  copy:
+    src: files/etc/logstash/pipelines.yml
+    dest: /etc/logstash/pipelines.yml
+  become: true
+  notify: restart service logstash

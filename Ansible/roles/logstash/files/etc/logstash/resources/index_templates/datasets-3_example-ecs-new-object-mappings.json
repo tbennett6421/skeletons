@@ -1,0 +1,57 @@
+{
+    "order" : 3,
+    "version": 2020111801,
+    "index_patterns" : [
+      "logstash-datasets-ilm-*"
+    ],
+    "mappings" : {
+      "doc": {
+        "properties" : {
+          "address": {
+            "properties": {
+              "street1": {
+                "ignore_above": 1024, 
+                "type": "keyword"
+              }, 
+              "street2": {
+                "ignore_above": 1024, 
+                "type": "keyword"
+              }, 
+              "city": {
+                "ignore_above": 1024, 
+                "type": "keyword"
+              }, 
+              "county": {
+                "ignore_above": 1024, 
+                "type": "keyword"
+              }, 
+              "country": {
+                "ignore_above": 3,
+                "type": "keyword"
+              }, 
+              "state": {
+                "ignore_above": 20, 
+                "type": "keyword"
+              }, 
+              "zip": {
+                "ignore_above": 5, 
+                "type": "keyword"
+              }, 
+              "zip_plus4": {
+                "ignore_above": 6,
+                "type": "keyword"
+              }
+            }
+          },
+          "logstash":{
+            "properties": {
+              "duration": {
+                "type": "scaled_float",
+                "scaling_factor": 100
+              }
+            }
+          }
+        }
+      }
+    }
+}

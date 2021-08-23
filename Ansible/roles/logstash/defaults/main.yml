@@ -1,0 +1,28 @@
+---
+## default variables
+logstash_heap_ratio: .30
+memtotal: 1000            ## Assume 1GB of RAM
+
+## Standardized format for variables
+## cyberark_<target>_<id>_obj
+## config_<target>_<id>_<type>
+## keystore_<target>_<id>_prop
+
+## Safe vars
+cyberark_app: APP
+cyberark_safe: SAFE
+
+## Elasticsearch vars
+cyberark_es_soclogstash_obj: CA_ES_OBJ                # Object in CA
+config_es_soclogstash_username: CA_ES_OBJ             # Identity to present
+keystore_es_user_prop: CA_ES_LOCAL_OBJ                # Property name in keystore
+
+## Oracle datamart auth vars
+cyberark_ora_datamart_obj: CA_ORA_OBJ                 # Object in CA
+config_ora_datamart_username: CA_ORA_OBJ              # Identity to present
+keystore_ora_datamart_prop: CA_ORA_LOCAL_OBJ          # Property name in keystore
+
+## Hadoop auth vars
+cyberark_hadoop_datalake_obj: CA_HADOOP_OBJ           # Object in CA
+config_hadoop_datalake_username: CA_HADOOP_OBJ        # Identity to present
+keystore_hadoop_datalake_prop: CA_HADOOP_LOCAL_OBJ    # Property name in keystore
