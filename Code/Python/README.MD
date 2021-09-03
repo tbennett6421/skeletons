@@ -117,8 +117,9 @@ docker run -v $(pwd):/my-app -it $IMAGE_ID /bin/bash
 ```
 
 # Wrapping a python binary
-
+```sh
 #!/usr/bin/env bash
 source /opt/soc/app1/env/bin/activate
 python3 /opt/soc/app1/main.py "$@"
 deactivate
+```
