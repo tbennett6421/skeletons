@@ -33,12 +33,12 @@ class Manifest(BaseObject):
         self.ready(throw=True)
 
     def validate(self):
-        self.isValid = False
+        self.is_valid = False
         if self.getLDAPQueryName() == None:
             return False
         if self.getLDAPQueryDefinition() == None:
             return False
-        self.isValid = True
+        self.is_valid = True
         return True
 
     def setLDAPQueryName(self, val):
