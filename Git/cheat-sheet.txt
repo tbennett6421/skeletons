@@ -72,6 +72,7 @@ git checkout [branch-name]
 
 ## Checkout remote branch, create local branch, and set tracking
 git checkout -b develop origin/develop
+git checkout --track origin/develop
 
 $ git logLists version history for the current branch$ git log --follow [file]Lists version history for a file, including renames$ git diff [first-branch]...[second-branch]Shows content differences between two branches$ git show [commit]Outputs metadata and content changes of the specified comm
 
