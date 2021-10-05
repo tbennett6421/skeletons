@@ -12,6 +12,36 @@ Search-ADAccount -LockedOut
 Get-ADUser USER1 -Properties *
 ```
 
+### Getting latest epoch time for user in forest
+```ps
+# LastLogon and BadPasswordTime are not replicated, collect this from all DCs and take the highest value
+
+$sites = @("ATL","NYC")
+$dcs = Get-ADDomainController -Filter * | where {$sites -contains $_.site}
+$userObj = Get-ADuser USER1
+
+$a = @()
+$prop = "LastLogon"
+ForEach ($dc in $dcs)
+{
+    $a += Get-ADuser $userObj -server $dc.hostname -Pr $prop | Select-Object $prop
+}
+$a = $a.$prop | Where {$_ -ne $null} | Sort-Object -Descending | Select-Object -Unique -First 1
+$lastTS = [datetime]::FromFileTime($a)
+
+$a = @()
+$prop = "BadPasswordTime"
+ForEach ($dc in $dcs)
+{
+    $a += Get-ADuser $userObj -server $dc.hostname -Pr $prop | Select-Object $prop
+}
+$a = $a.$prop | Where {$_ -ne $null} | Sort-Object -Descending | Select-Object -Unique -First 1
+$BadTS = [datetime]::FromFileTime($a)
+
+Write-Host "LastLogon : $lastTS"
+Write-Host "BadPasswordTime : $BadTS"
+```
+
 ## Domains
 ### Get sites in forest
 ```ps
