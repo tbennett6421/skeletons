@@ -43,6 +43,7 @@ Write-Host "BadPasswordTime : $BadTS"
 ```
 
 ## Domains
+
 ### Get sites in forest
 ```ps
 Get-ADForest | select-object -ExpandProperty Sites
