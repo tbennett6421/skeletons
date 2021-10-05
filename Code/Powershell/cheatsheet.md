@@ -1,8 +1,51 @@
 # Active Directory
 
-## Locked out accounts
+## Users
+
+### Locked out accounts
 ```ps
 Search-ADAccount -LockedOut
+```
+
+### Getting everything for a user account
+```ps1
+Get-ADUser USER1 -Properties *
+```
+
+## Domains
+### Get sites in forest
+```ps
+Get-ADForest | select-object -ExpandProperty Sites
+```
+
+### Getting all domain controllers
+```ps
+$dcs = Get-ADDomainController -filter * | Select-Object name
+```
+
+### Getting subset of domain controllers
+```ps
+# Only search Atlanta and New-York City
+$sites = @("ATL","NYC")
+$dcs = Get-ADDomainController -Filter * | where {$sites -contains $_.site}
+
+# Results that are not prod
+$deny = @("PRD")
+$dcs = Get-ADDomainController -Filter * | where {$_.site -ne $deny}
+```
+
+## Passwords
+
+### Change password using Get-Credential
+```ps
+$old = Get-Credential
+$new = Get-Credential
+Set-ADAccountPassword -Identity USER1 -OldPassword $old.Password -NewPassword $new.Password
+```
+
+## Change password using CLI prompt
+```
+Set-ADAccountPassword -Identity USER1
 ```
 
 ## Getting groups a user is in
@@ -23,18 +66,6 @@ Get-ADGroupMember "SG_Example" -Recursive | Select-Object SAMAccountName | Sort-
 ## Pulling users with an email address
 ```ps
 Get-ADUser -Filter {EmailAddress -like "*@example.com"} -Properties * | Select Name, SamAccountName, EmailAddress
-```
-
-## Change password using Get-Credential
-```ps
-$old = Get-Credential
-$new = Get-Credential
-Set-ADAccountPassword -Identity USER1 -OldPassword $old.Password -NewPassword $new.Password
-```
-
-## Change password using CLI prompt
-```
-Set-ADAccountPassword -Identity USER1
 ```
 
 # Updating Sysmon on remote hosts
