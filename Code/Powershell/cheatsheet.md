@@ -42,6 +42,23 @@ Write-Host "LastLogon : $lastTS"
 Write-Host "BadPasswordTime : $BadTS"
 ```
 
+## Groups
+
+### Getting groups a user is in
+```ps
+Get-ADPrincipalGroupMembership -Identity USER1 | Select-Object name
+```
+
+### Getting filtered groups a user is in
+```ps
+Get-ADPrincipalGroupMembership -Identity USER1 |Select-Object name | findstr /i hadoop
+```
+
+### Getting users in a security group
+```ps
+Get-ADGroupMember "SG_Example" -Recursive | Select-Object SAMAccountName | Sort-Object SAMAccountName
+```
+
 ## Domains
 
 ### Get sites in forest
@@ -77,21 +94,6 @@ Set-ADAccountPassword -Identity USER1 -OldPassword $old.Password -NewPassword $n
 ## Change password using CLI prompt
 ```
 Set-ADAccountPassword -Identity USER1
-```
-
-## Getting groups a user is in
-```ps
-Get-ADPrincipalGroupMembership -Identity USER1 | Select-Object name
-```
-
-## Getting filtered groups a user is in
-```ps
-Get-ADPrincipalGroupMembership -Identity USER1 |Select-Object name | findstr /i hadoop
-```
-
-## Getting users in a security group
-```ps
-Get-ADGroupMember "SG_Example" -Recursive | Select-Object SAMAccountName | Sort-Object SAMAccountName
 ```
 
 ## Pulling users with an email address
