@@ -4,7 +4,6 @@ import ssl
 keyfile='/etc/ssl/private/snakeoil.key'
 certfile='/etc/ssl/certificates/snakeoil.pem'
 
-
 httpd = BaseHTTPServer.HTTPServer(('0.0.0.0', 443),
         SimpleHTTPServer.SimpleHTTPRequestHandler)
 
