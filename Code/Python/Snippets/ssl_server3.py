@@ -42,6 +42,7 @@ for key,cert in tls_primitives.items():
         )
         while True:
             try:
+                print("[*] Serving: %s:%s" % (ip, port))
                 httpd.serve_forever()
             except KeyboardInterrupt as e:
                 msg="\n[!]: Caught ctrl+c: Do you wish to exit?: "
