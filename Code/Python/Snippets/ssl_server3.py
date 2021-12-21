@@ -15,23 +15,46 @@ except ImportError:
 if six.PY2:
     import BaseHTTPServer, SimpleHTTPServer
     from SimpleHTTPServer import SimpleHTTPRequestHandler
+    get_input = raw_input
+    class InterruptedError(KeyboardInterrupt):
+        pass
 
 import ssl
-keyfile='/etc/ssl/private/snakeoil.key'
-certfile='/etc/ssl/certificates/snakeoil.pem'
+tls_primitives = {
+    '/etc/ssl/private/snakeoil.key': '/etc/ssl/certificates/snakeoil.pem',
+    'key.pem': 'cert.pem'
+}
 
 ip = '0.0.0.0'
 port = 8443
 print("[*] Opening socket: %s:%s" % (ip, port))
 httpd = BaseHTTPServer.HTTPServer( (ip, port),
             SimpleHTTPServer.SimpleHTTPRequestHandler
+)
+
+for key,cert in tls_primitives.items():
+    try:
+        print("[?] Attempting to wrap socket in TLS via: %s:%s" % (key, cert))
+        httpd.socket = ssl.wrap_socket (httpd.socket,
+            keyfile=key,
+            certfile=cert,
+            server_side=True
         )
-try:
-    httpd.socket = ssl.wrap_socket (httpd.socket,
-        keyfile=keyfile,
-        certfile=certfile,
-        server_side=True
-    )
-    httpd.serve_forever()
-except IOError:
-    print("[!]: Unable to open TLS files: (%s)" % [keyfile, certfile])
+        while True:
+            try:
+                httpd.serve_forever()
+            except KeyboardInterrupt as e:
+                msg="\n[!]: Caught ctrl+c: Do you wish to exit?: "
+                choice=get_input(msg)
+                if str(choice).lower()[0] == 'y':
+                    raise InterruptedError
+                else:
+                    pass
+    except InterruptedError:
+        msg="[!]: Exit requested"
+        print(msg)
+    except KeyboardInterrupt:
+        msg="\n[!]: Caught ctrl+c twice: Forcing shutdown"
+        print(msg)
+    except IOError:
+        print("[!]: Unable to open TLS files: (%s)" % [key, cert])
