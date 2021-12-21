@@ -1,12 +1,11 @@
 from datetime import datetime
 
 csv = 'importantlist.csv'
+reason = "You can't tell me what to do"
 email = 'demo@example.com'
 username = email.split('@')[0]
 local_ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 utc_ts = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-
-reason = "You can't tell me what to do"
 
 payload = (
     'exec_mode=oneshot&output_mode=json&search='

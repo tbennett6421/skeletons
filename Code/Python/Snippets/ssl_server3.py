@@ -1,3 +1,17 @@
+from __future__ import (print_function, unicode_literals, division)
+__metaclass__ = type
+import sys
+try:
+    import six
+except ImportError:
+    print("[*] Consider install python library six for more functionality. Trying to detect python version")
+    six = lambda: None
+    v = sys.version[0]
+    if v == '3':
+        six.PY3 = True
+    elif v == '2':
+        six.PY2 = True
+
 import BaseHTTPServer, SimpleHTTPServer
 import ssl
 
