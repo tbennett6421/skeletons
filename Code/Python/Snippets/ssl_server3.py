@@ -13,11 +13,15 @@ except ImportError:
         six.PY2 = True
 
 if six.PY2:
+    from BaseHTTPServer import HTTPServer
     import BaseHTTPServer, SimpleHTTPServer
     from SimpleHTTPServer import SimpleHTTPRequestHandler
     get_input = raw_input
     class InterruptedError(KeyboardInterrupt):
         pass
+else:
+    from http.server import HTTPServer,SimpleHTTPRequestHandler
+    get_input = input
 
 import ssl
 tls_primitives = {
@@ -27,10 +31,9 @@ tls_primitives = {
 
 ip = '0.0.0.0'
 port = 8443
-print("[*] Opening socket: %s:%s" % (ip, port))
-httpd = BaseHTTPServer.HTTPServer( (ip, port),
-            SimpleHTTPServer.SimpleHTTPRequestHandler
-)
+socket = (ip, port)
+print("[*] Opening socket: %s:%s" % (socket))
+httpd = HTTPServer(socket, SimpleHTTPRequestHandler)
 
 for key,cert in tls_primitives.items():
     try:
