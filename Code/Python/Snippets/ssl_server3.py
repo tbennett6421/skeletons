@@ -1,3 +1,13 @@
+"""
+    Features to-do:
+        - implement argparse
+        - use argparse to read TLS primitivates
+        - use os.environment to read TLS primitives
+        - when all else fails, hot-gen self-signed and use.
+        - Make it look less ugly
+        - Package and implement classes
+"""
+
 from __future__ import (print_function, unicode_literals, division)
 __metaclass__ = type
 import sys
