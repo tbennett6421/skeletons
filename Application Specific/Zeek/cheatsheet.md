@@ -32,6 +32,15 @@
 
 # dns.log
 
+## Extract zeek conn data via 4 tuple (src, sport, dst, dport)
+`zcat dns.*.gz | cut -f3-6`
+
+## Extract zeek conn data via 4 tuple + protocol
+`zcat dns.*.gz | cut -f3-7`
+
+## Extract zeek conn data via 4 tuple + protocol + queries
+`zcat dns.*.gz | cut -f3-7,10`
+
 # files.log
 
 # http.log
@@ -47,3 +56,17 @@
 # kerberos.log
 
 # x509.log
+
+# References
+|Item|Link|
+|---|---|
+|conn.log|https://docs.zeek.org/en/master/scripts/base/protocols/conn/main.zeek.html|
+|dns.log|https://docs.zeek.org/en/master/scripts/base/protocols/dns/main.zeek.html|
+|files.log|https://docs.zeek.org/en/master/scripts/base/frameworks/files/main.zeek.html|
+|http.log|https://docs.zeek.org/en/master/scripts/base/protocols/http/main.zeek.html|
+|mysql.log|https://docs.zeek.org/en/master/scripts/base/protocols/mysql/main.zeek.html|
+|ntp.log|https://docs.zeek.org/en/master/scripts/base/protocols/ntp/main.zeek.html|
+|smtp.log|https://docs.zeek.org/en/master/scripts/base/protocols/smtp/main.zeek.html|
+|ssl.log|https://docs.zeek.org/en/master/scripts/base/protocols/ssl/main.zeek.html|
+|kerberos.log|https://docs.zeek.org/en/master/scripts/base/protocols/krb/main.zeek.html|
+|x509.log|https://docs.zeek.org/en/master/scripts/base/files/x509/main.zeek.html|
