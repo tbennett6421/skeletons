@@ -6,6 +6,9 @@
 ## Extract zeek conn data via 4 tuple + protocol
 `zcat conn.*.gz | cut -f3-7`
 
+## Extract zeek conn data via 4 tuple + protocol + duration
+`zcat conn.*.gz | cut -f3-7,9`
+
 ## Extract zeek conn data via 4 tuple + protocol + conn_state
 `zcat conn.*.gz | cut -f3-7,12`
 
