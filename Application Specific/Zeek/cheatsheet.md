@@ -75,6 +75,9 @@
 ## sort the user-agent strings by uniq count, showing length
 `zcat http.*.gz | cut -f13 | awk '{ print length, $0 }' | sort -n | uniq -c | sort -n`
 
+## Top talkers via POST
+`zcat http.*.gz | grep POST | cut -f3,10 | cut -f1 | sort | uniq -c | sort -n`
+
 # mysql.log
 
 # ntp.log
