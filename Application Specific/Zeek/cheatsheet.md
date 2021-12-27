@@ -1,7 +1,12 @@
+# zeek-cut
+
+## Given a log, determine the fields to target
+`zcat conn.*.gz | zeek-cut -m | head -n 1 | tr '\t' '\n' | awk '{print NR "," $0}'`
+
 # conn.log
 
 ## Extract zeek conn data via 4 tuple (src, sport, dst, dport)
-`zcat conn.*.gz | zeek-cut -d id.orig_h id.orig_p id.resp_h id.resp_p `
+`zcat conn.*.gz | zeek-cut -d id.orig_h id.orig_p id.resp_h id.resp_p`
 
 ## Extract zeek conn data via 4 tuple + protocol + service
 `zcat conn.*.gz | zeek-cut -d id.orig_h id.orig_p id.resp_h id.resp_p proto service`
@@ -35,50 +40,47 @@
 # dns.log
 
 ## Extract zeek conn data via 4 tuple (src, sport, dst, dport)
-`zcat dns.*.gz | cut -f3-6`
+`zcat dns.*.gz | zeek-cut -d id.orig_h id.orig_p id.resp_h id.resp_p`
 
 ## Extract zeek conn data via 4 tuple + protocol
-`zcat dns.*.gz | cut -f3-7`
+`zcat dns.*.gz | zeek-cut -d id.orig_h id.orig_p id.resp_h id.resp_p proto`
 
 ## Extract zeek conn data via 4 tuple + protocol + query data
-`zcat dns.*.gz | cut -f3-7,10,14,16,22,25`
+`zcat dns.*.gz | zeek-cut -d id.orig_h id.orig_p id.resp_h id.resp_p proto query qtype_name rcode_name answers`
 
 # files.log
 
 ## Extract src,dst,proto,hashs,mime
-`zcat files.*.gz | cut -f3-6,8-10,15,20-22`
+`zcat files.*.gz | zeek-cut -d tx_hosts rx_hosts conn_uids source analyzers mime_type filename duration total_bytes md5 sha1 sha256`
 
 # http.log
 
 ## Extract zeek conn data via 4 tuple (src, sport, dst, dport)
-`zcat http.*.gz | cut -f3-6,8-11,`
+`zcat http.*.gz | zeek-cut -d id.orig_h id.orig_p id.resp_h id.resp_p method host uri referrer`
 
 ## Extract conn,verb,uri
-`zcat http.*.gz | cut -f3-6,8,10`
+`zcat http.*.gz | zeek-cut -d id.orig_h id.orig_p id.resp_h id.resp_p method uri`
 
 ## Extract conn,verb,uri,ua
-`zcat http.*.gz | cut -f3-6,8,10,13`
+`zcat http.*.gz | zeek-cut -d id.orig_h id.orig_p id.resp_h id.resp_p uri user_agent`
 
 ## Extract conn,verb,uri,status
-`zcat http.*.gz | cut -f3-6,8,10,17,18`
-
-## Extract conn,verb,uri,all
-`zcat http.*.gz | cut -f3-6,8,10,13-`
+`zcat http.*.gz | zeek-cut -d id.orig_h id.orig_p id.resp_h id.resp_p method uri status_code status_msg`
 
 ## Extract conn,verb,uri,all
 `zcat http.*.gz | cut -f3-6,8,10,13-`
 
 ## Given a bad src ip, get all the http urls visit
-`zcat http.*.gz | cut -f3- | egrep '^10.164.94.120' | cut -f1-4,6,8`
+`zcat http.*.gz | zeek-cut -d id.orig_h id.orig_p id.resp_h id.resp_p method uri | egrep '^10.164.94.120' `
 
 ## sort the user-agent strings ascending
-`zcat http.*.gz | cut -f13 | awk '{ print length, $0 }' | sort -n | uniq -c`
+`zcat http.*.gz | zeek-cut -d user_agent | awk '{ print length, $0 }' | sort -n | uniq -c`
 
 ## sort the user-agent strings by uniq count, showing length
-`zcat http.*.gz | cut -f13 | awk '{ print length, $0 }' | sort -n | uniq -c | sort -n`
+`zcat http.*.gz | zeek-cut -d user_agent | awk '{ print length, $0 }' | sort -n | uniq -c | sort -n`
 
 ## Top talkers via POST
-`zcat http.*.gz | grep POST | cut -f3,10 | cut -f1 | sort | uniq -c | sort -n`
+`zcat http.*.gz | zeek-cut -d id.orig_h method | grep POST | cut -f1 | sort | uniq -c | sort -n`
 
 # mysql.log
 
