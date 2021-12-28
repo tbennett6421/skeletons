@@ -83,11 +83,13 @@
 `zcat http.*.gz | zeek-cut -d id.orig_h method | grep POST | cut -f1 | sort | uniq -c | sort -n`
 
 # mysql.log
+todo
 
 # ntp.log
+todo
 
 # smtp.log
-
+todo
 ### Extract zeek conn data via 4 tuple (src, sport, dst, dport)
 `zcat smtp.*.gz | cut -f3-6`
 
@@ -95,10 +97,19 @@
 `zcat smtp.*.gz | cut -f3-6,8-10`
 
 # ssl.log
+todo
+
+### Extract zeek conn data via 4 tuple (src, sport, dst, dport)
+`zcat smtp.*.gz | cut -f3-6`
+
+### Extract ssl via 4 tuple + SSL Version + ciphers + SNI
+`zcat smtp.*.gz | cut -f3-8,10`
 
 # kerberos.log
+todo
 
 # x509.log
+todo
 
 # References
 
