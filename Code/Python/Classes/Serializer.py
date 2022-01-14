@@ -9,6 +9,7 @@ import pickle
 import base64
 import hashlib
 from io import BytesIO#,StringIO
+from pprint import pprint
 
 ## Third-Party
 try:
@@ -41,14 +42,14 @@ class Serialized_Container(BaseObject):
         self.__init_vars__()
 
     def __init_vars__(self):
-        for k in self.self.acceptable_metadata_keys:
+        for k in self.acceptable_metadata_keys:
             setattr(self, k, None)
         self.is_valid = True
 
     def pretty_print(self, print_to_console=True):
         fx = inspect.currentframe().f_code.co_name
         console_buffer = []
-        for k in self.self.acceptable_metadata_keys:
+        for k in self.acceptable_metadata_keys:
             try:
                 v = getattr(self, k)
                 fstr = f"key({k}) => val({v})"
@@ -66,7 +67,7 @@ class Serialized_Container(BaseObject):
 
     def load_dump(self, dump):
         fx = inspect.currentframe().f_code.co_name
-        for k in self.self.acceptable_metadata_keys:
+        for k in self.acceptable_metadata_keys:
             try:
                 setattr(self, k, dump[k])
             except AttributeError:
@@ -84,7 +85,28 @@ class Serialized_Container(BaseObject):
             returns the decoded pickle on success
         """
         try:
-            pass
+            if isinstance(self.encoded_pickle, bytes):
+                pass
+            else:
+                # Convert to bytes object if needed
+                self.encoded_pickle = str(self.encoded_pickle).encode()
+
+            s = Serializer()
+            carrier = self.encoded_pickle
+
+            # # sha1sum and compare to stored hash in metadata
+            prior = s.sha1sum(carrier)
+            assert(prior == self.encoding_hash)
+
+            # decode(sha1(payload)) and compare to stored hash in metadata
+            payload = s.decode(carrier)
+            post = s.sha1sum(payload)
+            assert(post == self.pickle_hash)
+
+            # if successful,
+            pickle_buffer = BytesIO(payload)
+            return True, pickle_buffer
+
         except AssertionError:
             return False, None
 
@@ -312,10 +334,15 @@ def demo():
     pkg = Serialized_Container()
     pkg.load_dump(df_meta)
     pkg.pretty_print()
+    b, p = pkg.to_pickle()
+    if b:
+        print("[*] Successfully unpickled df_meta")
+        print(f"[*] pickle => {p}")
 
 def main():
     demo()
     print("Running unit_tests")
+    print()
     unit_tests()
 
 if __name__=="__main__":
