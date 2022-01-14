@@ -129,6 +129,33 @@ class Serializer(BaseObject):
             print(e)
             raise e
 
+    def dump(self, data):
+        """
+            This method attempts to
+                collect bytesize info
+                serialize input,
+                hashs the pickle
+                encodes the pickle
+                and hashs the encoded repr
+            and return pickle, and metadata
+        """
+        try:
+            pdata = self.serialize(data)
+            b64 = self.encode(pdata)
+            meta = {
+                'size_of_data': self.size_of(data),
+                'size_of_pickle': self.size_of(pdata),
+                'encoded_pickle': b64,
+                'pickle_hash': self.sha1sum(pdata),
+                'pickle_hash_method': 'SHA1',
+                'encoding_hash': self.sha1sum(b64),
+                'encoding_hash_method': 'SHA1',
+            }
+            return pdata, meta
+        except Exception as e:
+            print(e)
+            raise e
+
 def _task_runner(var, fx, verbose=True, print_result=True):
     """ call fx(var) and record details """
     try:
@@ -191,18 +218,31 @@ def unit_tests():
         print("[*] End basic tests")
 
         print("[*] Begin dumping tests")
+        for i in test_inputs:
+            run_dump_test(i, getattr(s, 'dump'))
 
     except Exception as e:
         print(e)
         raise e
 
 def demo():
-    print("Running unit_tests")
-    unit_tests()
     print("=== Demo ===")
+
+    s = Serializer()
+    nd = np.array([1, 2, 3, 4])
+    df = pd.DataFrame(nd, columns = ['Column_A'])
+
+    nd_pickle, nd_meta = s.dump(nd)
+    df_pickle, df_meta = s.dump(df)
+
+    print(nd_meta)
+    print(df_meta)
+    print()
 
 def main():
     demo()
+    print("Running unit_tests")
+    unit_tests()
 
 if __name__=="__main__":
     main()
