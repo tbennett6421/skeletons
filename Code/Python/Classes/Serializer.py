@@ -23,6 +23,59 @@ try:
 except ImportError:
     from BuildingBlocks import BaseObject
 
+class Serialized_Container(BaseObject):
+
+    def __init__(self):
+        """ No special init needed for this class """
+        super().__init__()
+        self.acceptable_metadata = [ 'size_of_data', 'size_of_pickle', 'encoded_pickle',
+            'pickle_hash', 'pickle_hash_method', 'encoding_hash', 'encoding_hash_method'
+        ]
+        self.__init_vars__()
+
+    def __init_vars__(self):
+        for k in self.acceptable_metadata:
+            setattr(self, k, None)
+        self.is_valid = True
+
+    def pretty_print(self, print_to_console=True):
+        fx = inspect.currentframe().f_code.co_name
+        console_buffer = []
+        for k in self.acceptable_metadata:
+            try:
+                v = getattr(self, k)
+                fstr = f"key({k}) => val({v})"
+                console_buffer.append(fstr)
+                if print_to_console:
+                    print(fstr)
+            except AttributeError:
+                msg = (
+                    f"In function: {fx}",
+                    f"Failed to access attribute: {k}; ignoring",
+                )
+                print(msg)
+                continue
+        return console_buffer
+
+    def load_dump(self, dump):
+        fx = inspect.currentframe().f_code.co_name
+        for k in self.acceptable_metadata:
+            try:
+                setattr(self, k, dump[k])
+            except AttributeError:
+                msg = (
+                    f"In function: {fx}",
+                    f"Failed to load attribute: {k}; ignoring",
+                )
+                print(msg)
+                continue
+        print(self)
+
+    def validate(self):
+        """ No special validation needed for this class """
+        self.is_valid = True
+        return True
+
 class Serializer(BaseObject):
 
     def __init__(self):
@@ -238,6 +291,10 @@ def demo():
     print(nd_meta)
     print(df_meta)
     print()
+
+    pkg = Serialized_Container()
+    pkg.load_dump(df_meta)
+    pkg.pretty_print()
 
 def main():
     demo()
