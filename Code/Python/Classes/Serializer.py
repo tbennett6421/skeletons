@@ -34,7 +34,7 @@ class Serializer(BaseObject):
         return True
 
     def encode(self, data):
-        """ attempt to b64 encode a bytes-like object, coercing if needed """
+        """ Attempt to b64 encode a bytes-like object, coercing if needed """
         try:
             if isinstance(data, bytes):
                 pass
@@ -47,12 +47,12 @@ class Serializer(BaseObject):
             fx = inspect.currentframe().f_code.co_name
             msg = (
                 f"In function: {fx}",
-                f"Data is of type: {type(data)}, unsure how to base64encode",
+                f"Data is of type: {type(data)}, unsure how to proceed",
             )
             raise TypeError(msg)
 
     def decode(self, data):
-        """ attempt to b64 decode a bytes-like object or string"""
+        """ Attempt to b64 decode a bytes-like object or string """
         try:
             if isinstance(data, bytes) or isinstance(data, str):
                 return base64.b64decode(data)
@@ -66,6 +66,24 @@ class Serializer(BaseObject):
         except Exception as e:
             print(e)
 
+    def sha1sum(self, data):
+        """ Attempt to hash a bytes-like object, coercing if needed """
+        try:
+            if isinstance(data, bytes):
+                pass
+            elif isinstance(data, str):
+                data = data.encode()
+            else:
+                data = str(data).encode()
+            return hashlib.sha1(data).hexdigest()
+        except Exception as e:
+            fx = inspect.currentframe().f_code.co_name
+            msg = (
+                f"In function: {fx}",
+                f"Data is of type: {type(data)}, unsure how to proceed",
+            )
+            raise TypeError(msg)
+
 def run_test(var, fx):
     """ call fx(var) and record details """
     print(f"[+] Testing method::{fx.__name__} against t({type(var)}) = {var}")
@@ -75,16 +93,21 @@ def run_test(var, fx):
 
 def unit_tests():
     s = Serializer()
+    test_inputs = ['Hello', b'hello', 42, 3.14]
     vals = []
     try:
-        vals.append(run_test("Hello", getattr(s, 'encode')))
-        vals.append(run_test(b"Hello", getattr(s, 'encode')))
-        vals.append(run_test(42, getattr(s, 'encode')))
-        vals.append(run_test(3.14, getattr(s, 'encode')))
+        for i in test_inputs:
+            # b64encode various types and store output for later testing
+            vals.append(run_test(i, getattr(s, 'encode')))
 
+        # attempt to decode all values from prior
         for v in vals:
             run_test(v, getattr(s, 'decode'))
-        print()
+
+        # sha1sum various types and store output for later testing
+        for i in test_inputs:
+            run_test(i, getattr(s, 'sha1sum'))
+        print("[*] End Tests")
 
     except Exception as e:
         print(e)
