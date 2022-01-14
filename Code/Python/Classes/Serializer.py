@@ -29,6 +29,7 @@ class Serialized_Container(BaseObject):
     def __init__(self):
         """ No special init needed for this class """
         super().__init__()
+        self.serial_metadata = None
         self.acceptable_metadata = {
             'size_of_data': "The size of the data (in bytes) prior to being serialized",
             'size_of_pickle': "The size of the data (in bytes) of the pickled object",
@@ -37,6 +38,7 @@ class Serialized_Container(BaseObject):
             'pickle_hash_method': "Identifies the message digest used to create pickle_hash",
             'encoding_hash': "The hash calculated against the base64 encoded payload or 'carrier'",
             'encoding_hash_method': "Identifies the message digest used to create encoding_hash",
+            'kwargs': 'Space allocated in the container for user notes'
         }
         self.acceptable_metadata_keys = self.acceptable_metadata.keys()
         self.__init_vars__()
@@ -44,18 +46,16 @@ class Serialized_Container(BaseObject):
     def __init_vars__(self):
         for k in self.acceptable_metadata_keys:
             setattr(self, k, None)
+        self.kwargs = {}
         self.is_valid = True
 
-    def pretty_print(self, print_to_console=True):
+    def pack_metadata(self):
         fx = inspect.currentframe().f_code.co_name
-        console_buffer = []
+        dic = {}
         for k in self.acceptable_metadata_keys:
             try:
                 v = getattr(self, k)
-                fstr = f"key({k}) => val({v})"
-                console_buffer.append(fstr)
-                if print_to_console:
-                    print(fstr)
+                dic[k] = v
             except AttributeError:
                 msg = (
                     f"In function: {fx}",
@@ -63,6 +63,17 @@ class Serialized_Container(BaseObject):
                 )
                 print(msg)
                 continue
+        self.serial_metadata = dic
+        return self.serial_metadata
+
+    def pretty_print(self, print_to_console=True):
+        dic = self.pack_metadata()
+        console_buffer = []
+        for k,v in dic.items():
+            fstr = f"key({k}) => val({v})"
+            console_buffer.append(fstr)
+            if print_to_console:
+                print(fstr)
         return console_buffer
 
     def load_dump(self, dump):
@@ -70,7 +81,7 @@ class Serialized_Container(BaseObject):
         for k in self.acceptable_metadata_keys:
             try:
                 setattr(self, k, dump[k])
-            except AttributeError:
+            except (AttributeError, KeyError):
                 msg = (
                     f"In function: {fx}",
                     f"Failed to load attribute: {k}; ignoring",
@@ -78,6 +89,31 @@ class Serialized_Container(BaseObject):
                 print(msg)
                 continue
         print(self)
+
+    # getters
+    def _get_annotation(self, key):
+        """ kwargs getter """
+        try:
+            return self.kwargs[key]
+        except KeyError:
+            return None
+
+    def get_note(self, key):
+        """ public interface. ie stub """
+        return self._get_annotation(key)
+
+    def _set_annotation(self, key, value):
+        """ kwargs setter """
+        self.kwargs[key] = value
+        self.pack_metadata()
+
+    def set_note(self, key, value):
+        """ public interface. ie stub """
+        return self._set_annotation(key, value)
+
+    def to_meta(self):
+        """ Return the metadata of the serialized container """
+        return self.serial_metadata
 
     def to_pickle(self):
         """
@@ -96,12 +132,12 @@ class Serialized_Container(BaseObject):
 
             # # sha1sum and compare to stored hash in metadata
             prior = s.sha1sum(carrier)
-            assert(prior == self.encoding_hash)
+            assert prior == self.encoding_hash
 
             # decode(sha1(payload)) and compare to stored hash in metadata
             payload = s.decode(carrier)
             post = s.sha1sum(payload)
-            assert(post == self.pickle_hash)
+            assert post == self.pickle_hash
 
             # if successful,
             pickle_buffer = BytesIO(payload)
@@ -162,6 +198,7 @@ class Serializer(BaseObject):
         except TypeError as e:
             raise e
         except Exception as e:
+            print(e)
             msg = (
                 f"In function: {fx}",
                 f"Data is of type: {type(data)}, unsure how to proceed",
@@ -201,6 +238,7 @@ class Serializer(BaseObject):
                 data = str(data).encode()
             return hashlib.sha1(data).hexdigest()
         except Exception as e:
+            print(e)
             msg = (
                 f"In function: {fx}",
                 f"Data is of type: {type(data)}, unsure how to proceed",
@@ -333,11 +371,15 @@ def demo():
 
     pkg = Serialized_Container()
     pkg.load_dump(df_meta)
+    pkg.set_note('sample_size', 10)
+    pkg.get_note('sample_size')
     pkg.pretty_print()
     b, p = pkg.to_pickle()
     if b:
         print("[*] Successfully unpickled df_meta")
         print(f"[*] pickle => {p}")
+    print(pkg.to_meta())
+    print()
 
 def main():
     demo()
