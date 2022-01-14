@@ -5,9 +5,10 @@ __code_version__ = 'v0.0.0'
 ## Standard Libraries
 import sys
 import inspect
+import pickle
 import base64
 import hashlib
-from io import StringIO,BytesIO
+from io import BytesIO#,StringIO
 
 ## Third-Party
 try:
@@ -33,6 +34,18 @@ class Serializer(BaseObject):
         """ No special validation needed for this class """
         self.is_valid = True
         return True
+
+    def _serialize_df(self, df):
+        """ This method takes a pandas dataframe and serializes it """
+        pickle_buffer = BytesIO()
+        df.to_pickle(pickle_buffer)
+        return pickle_buffer.getvalue()
+
+    def _serialize_np(self, nd):
+        """ This method takes a numpy array and serializes it """
+        pickle_buffer = BytesIO()
+        np.save(pickle_buffer, nd)
+        return pickle_buffer.getvalue()
 
     def size_of(self, data):
         return sys.getsizeof(data)
@@ -102,43 +115,66 @@ class Serializer(BaseObject):
             )
             raise TypeError(msg)
 
+    def serialize(self, data):
+        try:
+            if isinstance(data, pd.DataFrame):
+                return self._serialize_df(data)
+            elif isinstance(data, np.ndarray):
+                return self._serialize_np(data)
+            else:
+                pickle_buffer = BytesIO()
+                pickle.dump(data, pickle_buffer)
+                return pickle_buffer.getvalue()
+        except Exception as e:
+            print(e)
+            raise e
+
 def run_test(var, fx):
     """ call fx(var) and record details """
-    if isinstance(var, np.ndarray):
-        _repr = var.tolist()
-    else:
-        _repr = var
-    print(f"[+] Testing method::{fx.__name__} against t({type(var)}) = {_repr}")
-    ret = fx(var)
-    print(f"[>] Result: {ret}")
-    return ret
+    try:
+        print(f"[+] Testing method::{fx.__name__} against t({type(var)})")
+        print(var)
+        ret = fx(var)
+        print(f"[>] Result: {ret}")
+        return ret
+    except Exception as e:
+        print(e)
+        raise e
 
 def unit_tests():
     s = Serializer()
     a1D = np.array([1, 2, 3, 4])
     a2D = np.array([[1, 2], [3, 4]])
     a3D = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]])
+    df1D = pd.DataFrame(a1D, columns = ['Column_A'])
+
     test_inputs1 = ['Hello', b'hello', 42, 3.14]
     test_inputs2 = [a1D, a2D, a3D]
-    test_inputs = test_inputs1 + test_inputs2
-    vals = []
+    test_inputs3 = [df1D]
+    test_inputs = test_inputs1 + test_inputs2 + test_inputs3
+
+    encoded_vals = []
+    serialized_objs = []
     try:
         for i in test_inputs1:
             # b64encode various types and store output for later testing
-            vals.append(run_test(i, getattr(s, 'encode')))
+            encoded_vals.append(run_test(i, getattr(s, 'encode')))
 
         # attempt to decode all values from prior
-        for v in vals:
+        for v in encoded_vals:
             run_test(v, getattr(s, 'decode'))
 
         # sha1sum various types and store output for later testing
         for i in test_inputs1:
             run_test(i, getattr(s, 'sha1sum'))
 
+        # serialize all object and store for later testing
+        for i in test_inputs:
+            serialized_objs.append(run_test(i, getattr(s, 'serialize')))
+
         # get bytesizes for various types
         for i in test_inputs:
             run_test(i, getattr(s, 'size_of'))
-
         print("[*] End Tests")
 
     except Exception as e:
