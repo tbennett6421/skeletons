@@ -129,17 +129,26 @@ class Serializer(BaseObject):
             print(e)
             raise e
 
-def run_test(var, fx):
+def _task_runner(var, fx, verbose=True, print_result=True):
     """ call fx(var) and record details """
     try:
-        print(f"[+] Testing method::{fx.__name__} against t({type(var)})")
-        print(var)
+        if verbose:
+            print(f"[+] Testing method::{fx.__name__} against t({type(var)})")
+            print(var)
+
         ret = fx(var)
-        print(f"[>] Result: {ret}")
+        if verbose and print_result:
+            print(f"[>] Result: {ret}")
         return ret
     except Exception as e:
         print(e)
         raise e
+
+def run_test(var, fx):
+    return _task_runner(var, fx, verbose=True, print_result=True)
+
+def run_dump_test(var, fx):
+    return _task_runner(var, fx, verbose=True, print_result=False)
 
 def unit_tests():
     s = Serializer()
@@ -164,7 +173,7 @@ def unit_tests():
         for v in encoded_vals:
             run_test(v, getattr(s, 'decode'))
 
-        # sha1sum various types and store output for later testing
+        # sha1sum various types
         for i in test_inputs1:
             run_test(i, getattr(s, 'sha1sum'))
 
@@ -172,10 +181,16 @@ def unit_tests():
         for i in test_inputs:
             serialized_objs.append(run_test(i, getattr(s, 'serialize')))
 
+        # sha1sum serialized objects
+        for i in serialized_objs:
+            run_test(i, getattr(s, 'sha1sum'))
+
         # get bytesizes for various types
         for i in test_inputs:
             run_test(i, getattr(s, 'size_of'))
-        print("[*] End Tests")
+        print("[*] End basic tests")
+
+        print("[*] Begin dumping tests")
 
     except Exception as e:
         print(e)
