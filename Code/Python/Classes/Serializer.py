@@ -3,6 +3,7 @@ from __future__ import (print_function,absolute_import)
 __code_version__ = 'v0.0.0'
 
 ## Standard Libraries
+import sys
 import inspect
 import base64
 import hashlib
@@ -33,18 +34,29 @@ class Serializer(BaseObject):
         self.is_valid = True
         return True
 
+    def size_of(self, data):
+        return sys.getsizeof(data)
+
     def encode(self, data):
         """ Attempt to b64 encode a bytes-like object, coercing if needed """
+        fx = inspect.currentframe().f_code.co_name
         try:
             if isinstance(data, bytes):
                 pass
             elif isinstance(data, str):
                 data = data.encode()
+            elif isinstance(data, np.ndarray):
+                msg = (
+                    f"In function: {fx}",
+                    f"Data is of type: {type(data)}, you should serialize this first",
+                )
+                raise TypeError(msg)
             else:
                 data = str(data).encode()
             return base64.b64encode(data)
+        except TypeError as e:
+            raise e
         except Exception as e:
-            fx = inspect.currentframe().f_code.co_name
             msg = (
                 f"In function: {fx}",
                 f"Data is of type: {type(data)}, unsure how to proceed",
@@ -53,11 +65,11 @@ class Serializer(BaseObject):
 
     def decode(self, data):
         """ Attempt to b64 decode a bytes-like object or string """
+        fx = inspect.currentframe().f_code.co_name
         try:
             if isinstance(data, bytes) or isinstance(data, str):
                 return base64.b64decode(data)
             else:
-                fx = inspect.currentframe().f_code.co_name
                 msg = (
                     f"In function: {fx}",
                     f"Data is of type: {type(data)}, unsure how to base64decode",
@@ -68,16 +80,22 @@ class Serializer(BaseObject):
 
     def sha1sum(self, data):
         """ Attempt to hash a bytes-like object, coercing if needed """
+        fx = inspect.currentframe().f_code.co_name
         try:
             if isinstance(data, bytes):
                 pass
             elif isinstance(data, str):
                 data = data.encode()
+            elif isinstance(data, np.ndarray):
+                msg = (
+                    f"In function: {fx}",
+                    f"Data is of type: {type(data)}, you should serialize this first",
+                )
+                raise TypeError(msg)
             else:
                 data = str(data).encode()
             return hashlib.sha1(data).hexdigest()
         except Exception as e:
-            fx = inspect.currentframe().f_code.co_name
             msg = (
                 f"In function: {fx}",
                 f"Data is of type: {type(data)}, unsure how to proceed",
@@ -86,17 +104,26 @@ class Serializer(BaseObject):
 
 def run_test(var, fx):
     """ call fx(var) and record details """
-    print(f"[+] Testing method::{fx.__name__} against t({type(var)}) = {var}")
+    if isinstance(var, np.ndarray):
+        _repr = var.tolist()
+    else:
+        _repr = var
+    print(f"[+] Testing method::{fx.__name__} against t({type(var)}) = {_repr}")
     ret = fx(var)
-    print(f"[*] Result: {ret}")
+    print(f"[>] Result: {ret}")
     return ret
 
 def unit_tests():
     s = Serializer()
-    test_inputs = ['Hello', b'hello', 42, 3.14]
+    a1D = np.array([1, 2, 3, 4])
+    a2D = np.array([[1, 2], [3, 4]])
+    a3D = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]])
+    test_inputs1 = ['Hello', b'hello', 42, 3.14]
+    test_inputs2 = [a1D, a2D, a3D]
+    test_inputs = test_inputs1 + test_inputs2
     vals = []
     try:
-        for i in test_inputs:
+        for i in test_inputs1:
             # b64encode various types and store output for later testing
             vals.append(run_test(i, getattr(s, 'encode')))
 
@@ -105,8 +132,13 @@ def unit_tests():
             run_test(v, getattr(s, 'decode'))
 
         # sha1sum various types and store output for later testing
-        for i in test_inputs:
+        for i in test_inputs1:
             run_test(i, getattr(s, 'sha1sum'))
+
+        # get bytesizes for various types
+        for i in test_inputs:
+            run_test(i, getattr(s, 'size_of'))
+
         print("[*] End Tests")
 
     except Exception as e:
