@@ -28,20 +28,27 @@ class Serialized_Container(BaseObject):
     def __init__(self):
         """ No special init needed for this class """
         super().__init__()
-        self.acceptable_metadata = [ 'size_of_data', 'size_of_pickle', 'encoded_pickle',
-            'pickle_hash', 'pickle_hash_method', 'encoding_hash', 'encoding_hash_method'
-        ]
+        self.acceptable_metadata = {
+            'size_of_data': "The size of the data (in bytes) prior to being serialized",
+            'size_of_pickle': "The size of the data (in bytes) of the pickled object",
+            'encoded_pickle': "The pickle's representation as encoded via base64()",
+            'pickle_hash': "The hash calculated against the pickle or 'payload'",
+            'pickle_hash_method': "Identifies the message digest used to create pickle_hash",
+            'encoding_hash': "The hash calculated against the base64 encoded payload or 'carrier'",
+            'encoding_hash_method': "Identifies the message digest used to create encoding_hash",
+        }
+        self.acceptable_metadata_keys = self.acceptable_metadata.keys()
         self.__init_vars__()
 
     def __init_vars__(self):
-        for k in self.acceptable_metadata:
+        for k in self.self.acceptable_metadata_keys:
             setattr(self, k, None)
         self.is_valid = True
 
     def pretty_print(self, print_to_console=True):
         fx = inspect.currentframe().f_code.co_name
         console_buffer = []
-        for k in self.acceptable_metadata:
+        for k in self.self.acceptable_metadata_keys:
             try:
                 v = getattr(self, k)
                 fstr = f"key({k}) => val({v})"
@@ -59,7 +66,7 @@ class Serialized_Container(BaseObject):
 
     def load_dump(self, dump):
         fx = inspect.currentframe().f_code.co_name
-        for k in self.acceptable_metadata:
+        for k in self.self.acceptable_metadata_keys:
             try:
                 setattr(self, k, dump[k])
             except AttributeError:
@@ -70,6 +77,16 @@ class Serialized_Container(BaseObject):
                 print(msg)
                 continue
         print(self)
+
+    def to_pickle(self):
+        """
+            Given the classes metadata; attempt to load the pickle safely by running hash checks
+            returns the decoded pickle on success
+        """
+        try:
+            pass
+        except AssertionError:
+            return False, None
 
     def validate(self):
         """ No special validation needed for this class """
