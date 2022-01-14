@@ -8,8 +8,7 @@ import inspect
 import pickle
 import base64
 import hashlib
-from io import BytesIO#,StringIO
-from pprint import pprint
+from io import BytesIO
 
 ## Third-Party
 try:
@@ -121,11 +120,11 @@ class Serialized_Container(BaseObject):
             returns the decoded pickle on success
         """
         try:
-            if isinstance(self.encoded_pickle, bytes):
+            if isinstance(self.encoded_pickle, bytes): # pylint: disable=access-member-before-definition
                 pass
             else:
                 # Convert to bytes object if needed
-                self.encoded_pickle = str(self.encoded_pickle).encode()
+                self.encoded_pickle = str(self.encoded_pickle).encode() # pylint: disable=attribute-defined-outside-init
 
             s = Serializer()
             carrier = self.encoded_pickle
@@ -203,7 +202,7 @@ class Serializer(BaseObject):
                 f"In function: {fx}",
                 f"Data is of type: {type(data)}, unsure how to proceed",
             )
-            raise TypeError(msg)
+            raise TypeError(msg) from e
 
     def decode(self, data):
         """ Attempt to b64 decode a bytes-like object or string """
@@ -243,7 +242,7 @@ class Serializer(BaseObject):
                 f"In function: {fx}",
                 f"Data is of type: {type(data)}, unsure how to proceed",
             )
-            raise TypeError(msg)
+            raise TypeError(msg) from e
 
     def serialize(self, data):
         try:
