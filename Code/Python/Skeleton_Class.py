@@ -1,24 +1,21 @@
-#!/usr/bin/env python3
-
-""" Put a description here """
-
 from __future__ import print_function
-from __future__ import absolute_import
 
 __code_desc__ = "Put a description here"
-__code_version__ = 'v0.0.1'
+__code_version__ = 'v0.0.0'
 __code_debug__ = True
 
 ## Standard Libraries
 import os
 import sys
-from pprint import pformat, pprint
+from pprint import pprint
 
 ## Third Party libraries
 
 ## Modules
-from .BuildingBlocks import State               #pylint: disable=relative-beyond-top-level
-from .BuildingBlocks import BaseObject          #pylint: disable=relative-beyond-top-level
+try:
+    from .BuildingBlocks import BaseObject
+except ImportError:
+    from BuildingBlocks import BaseObject
 
 class Skeleton_Class(BaseObject):
 
@@ -61,3 +58,4 @@ def main():
 
 if __name__=="__main__":
     main()
+

@@ -48,6 +48,16 @@ tcpdump -r source.pcap 'tcp[13]=18' or 'tcp[13]=2' > tcpstep1-2.pcap
 tcpdump -nn -r source.pcap 'tcp[13]=18' or 'tcp[13]=2' > tcpstep1-2.tcpdump.output
 ```
 
+### Extract packets that = PSH+ACK
+```sh
+tcpdump -r source.pcap 'tcp[tcpflags] & (tcp-push|tcp-ack) == (tcp-push|tcp-ack)'
+```
+
+### Extract packets that are SYN or RST
+```sh
+tcpdump -r source.pcap 'tcp[tcpflags] == tcp-syn or tcp[tcpflags] == tcp-rst'
+```
+
 ### Extracting packets from a bad source to a destination network
 ```sh
 # Write subset to pcap
