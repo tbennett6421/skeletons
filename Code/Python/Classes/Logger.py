@@ -3,7 +3,7 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-__code_version__ = 'v2.0.0'
+__code_version__ = 'v2.0.2'
 
 ## Standard Libraries
 from datetime import datetime
@@ -109,11 +109,8 @@ class Logger(BaseObject):
         sh.setFormatter(self.formatter)
         self.attach(sh)
 
-    def addFileHandler(self, filename, mode='a', encoding=None, delay=False, maxBytes=2000000, backupCount=5):
-        """ Default to 5 copies, of 2MB each """
-        fh = self.file_handler = logging.handlers.RotatingFileHandler(filename, mode=mode, maxBytes=maxBytes, backupCount=backupCount)
-        fh.setFormatter(self.formatter)
-        self.attach(fh)
+    def addFileHandler(self, filename, mode='a', encoding=None, delay=False):
+        return self.addWatchedFileHandler(filename, mode=mode, encoding=encoding, delay=delay)
 
     def addQueueHandler(self):
         if self.simple_queue is not None:
@@ -123,6 +120,22 @@ class Logger(BaseObject):
             qh = self.queue_handler = logging.handlers.QueueHandler(q)
             qh.setFormatter(self.formatter)
             self.attach(qh)
+
+    def addWatchedFileHandler(self, filename, mode='a', encoding=None, delay=False):
+        """
+            As Logrotate is in effect, we are no longer using the RotatingFileHandler
+            according to the docs we should be using the WatchedFileHandler.
+        """
+        # logging.handlers.WatchedFileHandler: pinned to 3.6.8
+        fh = self.file_handler = logging.handlers.WatchedFileHandler(filename, mode=mode, encoding=encoding, delay=False)
+        fh.setFormatter(self.formatter)
+        self.attach(fh)
+
+    def addRotatingFileHandler(self, filename, mode='a', encoding=None, delay=False, maxBytes=20000000, backupCount=5):
+        """ Default to 5 copies, of 20MB each """
+        fh = self.file_handler = logging.handlers.RotatingFileHandler(filename, mode=mode, maxBytes=maxBytes, backupCount=backupCount)
+        fh.setFormatter(self.formatter)
+        self.attach(fh)
 
     def getAllLogs(self):
         if self.simple_queue is None:
