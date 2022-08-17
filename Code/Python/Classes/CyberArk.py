@@ -17,42 +17,38 @@ import urllib3
 
 ## Modules
 try:
+    from .Base import configureTLSValidation
     from .BuildingBlocks import BaseObject
+    from .Exceptions import ValidationFailedError
 except ImportError:
+    from Base import configureTLSValidation
     from BuildingBlocks import BaseObject
+    from Exceptions import ValidationFailedError
 
 class CyberArk(BaseObject):
 
     def __init__(self, ca_appid=None, ca_safe=None, ca_object=None, base_url="https://ccp.availity.net/AIMWebService/api/Accounts"):
         ## Call parent init
         super().__init__()
-
         # disable warnings is required due to requests bundling their own copy
         # of urllib3 and not passing tls_bundle down to the connection pool
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         # Configure TLS validation within requests
-        self.configureTLSValidation()
+        self._configureTLSValidation()
         self.token = None
         self.is_valid = False
         self.base_url = base_url
         self.setCAParams(ca_appid, ca_safe, ca_object)
 
-    def configureTLSValidation(self):
-        try:
-            self.tls_bundle = os.environ["REQUESTS_CA_BUNDLE"]
-            self.verify = True
-        except KeyError:
-            RHEL_bundle = "/etc/pki/tls/certs/ca-bundle.crt"
-            WSL_bundle = "/etc/ssl/certs/ca-certificates.crt"
-            if os.path.isfile(RHEL_bundle):
-                self.verify = True
-                self.tls_bundle = RHEL_bundle
-            elif os.path.isfile(WSL_bundle):
-                self.verify = True
-                self.tls_bundle = WSL_bundle
-            else:
-                self.verify = False
-                self.tls_bundle = False
+    """
+        Attempt to detect and configure TLS cert checking, allow caller to override in cases
+        where the TLS for a given system/service is self-signed.
+    """
+    def _configureTLSValidation(self, disable_verification=False):
+        verify, tls_bundle = configureTLSValidation(disable_verification=disable_verification)
+        self.verify = verify
+        self.tls_bundle = tls_bundle
+        return
 
     def validate(self):
         if self.ca_appid is None:
@@ -101,7 +97,7 @@ class CyberArk(BaseObject):
             'Object': self.ca_object
         }
 
-    """ doRequest uses the CCP endpoint to authenticate against cyberark using a trusted IP. """
+    """ doRequest uses the CCP endpoint to authenticate against CyberArk using a trusted IP. """
     def doRequest(self):
         if self.validate():
             try:
@@ -123,7 +119,7 @@ class CyberArk(BaseObject):
             except Exception:
                 raise
         else:
-            raise ValueError("Failed self.validate()")
+            raise ValidationFailedError("Failed self.validate()")
 
     """
       doRequestUserFallback is used to authenticate to epv and pull creds
@@ -162,7 +158,7 @@ class CyberArk(BaseObject):
             except:
                 raise
         else:
-            raise ValueError("Failed self.validate()")
+            raise ValidationFailedError("Failed self.validate()")
 
     def authenticateUser(self, username, password, logon_url="https://epv.availity.net/PasswordVault/WebServices/auth/Cyberark/CyberArkAuthenticationService.svc/Logon"):
         headers = {

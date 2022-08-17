@@ -33,7 +33,7 @@ def preload_domains(domain_list, delay=0.1):
                 print("No whois record for %s" % (eachdomain))
                 continue
         except Exception as e:
-            print("Error querying whois server: %s" % (str(e)))     
+            print("Error querying whois server: %s" % (str(e)))
             continue
         domain_info["time"] = time.time()
         domain_info['alexa'] = eachalexa
@@ -55,11 +55,11 @@ except Exception as e:
 
 if args.append:
     try:
-        fh = open("domain_cache.dst","rb") 
+        fh = open("domain_cache.dst","rb")
         cache = pickle.load(fh)
         fh.close()
     except Exception as e:
-        raise(Exception("An error occured loading the disk cache {0}".format(str(e)))) 
+        raise(Exception("An error occurred loading the disk cache {0}".format(str(e))))
 
 preload_domains(alexa)
 

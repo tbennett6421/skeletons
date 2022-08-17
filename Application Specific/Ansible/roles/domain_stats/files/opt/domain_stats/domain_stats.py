@@ -236,7 +236,7 @@ def main():
                 server.cache = pickle.loads(fh.read(),fix_imports=True)
             fh.close()
         except Exception as e:
-            raise(Exception("An error occured loading the disk cache {0}".format(str(e))))
+            raise(Exception("An error occurred loading the disk cache {0}".format(str(e))))
 
     # Store entries for preload
     preload = {
