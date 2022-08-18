@@ -27,7 +27,7 @@ except ImportError:
 
 class CyberArk(BaseObject):
 
-    def __init__(self, ca_appid=None, ca_safe=None, ca_object=None, base_url="https://ccp.availity.net/AIMWebService/api/Accounts"):
+    def __init__(self, ca_appid=None, ca_safe=None, ca_object=None, base_url):
         ## Call parent init
         super().__init__()
         # disable warnings is required due to requests bundling their own copy
@@ -132,7 +132,7 @@ class CyberArk(BaseObject):
             self.token = self.authenticateUser(username=usernm, password=passwd)
         if self.validate():
             try:
-                account_url = "https://epv.availity.net/PasswordVault/WebServices/PIMServices.svc/Accounts"
+                account_url = ""
                 self.params = self.buildParams()
                 headers = {
                     "Accept": "application/json",
@@ -160,7 +160,7 @@ class CyberArk(BaseObject):
         else:
             raise ValidationFailedError("Failed self.validate()")
 
-    def authenticateUser(self, username, password, logon_url="https://epv.availity.net/PasswordVault/WebServices/auth/Cyberark/CyberArkAuthenticationService.svc/Logon"):
+    def authenticateUser(self, username, password, logon_url):
         headers = {
             "Accept": "application/json",
             "ContentType": "application/json",
@@ -218,7 +218,7 @@ class CyberArk(BaseObject):
         # Get AccountID
         aid = response['accounts'][0]['AccountID']
         try:
-            password_url = "https://epv.availity.net/PasswordVault/WebServices/PIMServices.svc/Accounts/%s/Credentials" % (aid)
+            password_url = "" % (aid)
             headers = {
                 "Authorization": self.token,
             }
