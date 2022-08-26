@@ -1,25 +1,34 @@
+#!/usr/bin/env python3
+
+""" Put a description here """
+
 from __future__ import print_function
+from __future__ import absolute_import
 
 __code_desc__ = "Put a description here"
-__code_version__ = 'v0.0.0'
+__code_version__ = 'v1.1.1'
 __code_debug__ = True
 
 ## Standard Libraries
 import os
 import sys
-from pprint import pprint
+from pprint import pformat, pprint
 
 ## Third Party libraries
 
 ## Modules
 try:
-    from .BuildingBlocks import BaseObject
-except ImportError:
-    from BuildingBlocks import BaseObject
+    from classes.BuildingBlocks import State, BaseObject
+except ModuleNotFoundError:
+    try:
+        from .BuildingBlocks import State, BaseObject
+    except ImportError:
+        from BuildingBlocks import State, BaseObject
 
 class Skeleton_Class(BaseObject):
 
     def __init__(self):
+        #region: debugging handler
         if __code_debug__:
             try:
                 import debugpy
@@ -30,11 +39,12 @@ class Skeleton_Class(BaseObject):
                 print('break on this line')
             except ImportError:
                 import ptvsd
-                # 5678 is the default attach port in the VS Code debug configurations
                 print("Waiting for debugger attach")
                 ptvsd.enable_attach(address=('localhost', 5678), redirect_output=True)
                 ptvsd.wait_for_attach()
                 breakpoint()
+                print('break on this line')
+        #endregion: debugging handler
 
         ## Call parent init
         super().__init__()
@@ -58,4 +68,3 @@ def main():
 
 if __name__=="__main__":
     main()
-

@@ -3,7 +3,7 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-__code_version__ = 'v2.0.2'
+__code_version__ = 'v2.1.1'
 
 ## Standard Libraries
 from datetime import datetime
@@ -14,9 +14,12 @@ from queue import Queue
 
 ## Modules
 try:
-    from .BuildingBlocks import BaseObject
-except ImportError:
-    from BuildingBlocks import BaseObject
+    from classes.BuildingBlocks import BuildingBlocks
+except ModuleNotFoundError:
+    try:
+        from .BuildingBlocks import BuildingBlocks
+    except ImportError:
+        from BuildingBlocks import BuildingBlocks
 
 class Logger(BaseObject):
     # region: Logger

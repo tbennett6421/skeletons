@@ -3,7 +3,7 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-__code_version__ = 'v1.0.2'
+__code_version__ = 'v1.1.1'
 
 ## Standard Libraries
 import os
@@ -13,11 +13,15 @@ import cx_Oracle
 
 ## Modules
 try:
-    from .BuildingBlocks import BaseObject
-    from .CyberArk import CyberArk
-except ImportError:
-    from BuildingBlocks import BaseObject
-    from CyberArk import CyberArk
+    from classes.BuildingBlocks import BaseObject
+    from classes.CyberArk import CyberArk
+except ModuleNotFoundError:
+    try:
+        from .BuildingBlocks import BaseObject
+        from .CyberArk import CyberArk
+    except ImportError:
+        from BuildingBlocks import BaseObject
+        from CyberArk import CyberArk
 
 class Oracle(BaseObject):
 

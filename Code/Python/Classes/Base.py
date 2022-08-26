@@ -1,6 +1,6 @@
 from __future__ import print_function
 from __future__ import absolute_import
-__code_version__ = 'v2.0.2'
+__code_version__ = 'v2.0.5'
 __env__ = "P2"
 
 ## Standard Libraries
@@ -16,11 +16,13 @@ def askForCredentials(prompt):
     passwd = None
     print(prompt)
     while passwd is None:
-        usernm = input("Username: ")
-        prompt1 = getpass("Confirm  : ")
-        prompt2 = getpass("Password : ")
+        usernm = input("Username : ")
+        prompt1 = getpass("Password : ")
+        prompt2 = getpass("Confirm  : ")
         if prompt1 == prompt2:
             return (usernm, prompt1)
+        else:
+            print("Password mismatch. Please try again")
 
 def configureTLSValidation(disable_verification=False):
     """
@@ -60,6 +62,7 @@ def configureTLSValidation(disable_verification=False):
 
 def detectRunningSite():
     """ Probe the hostname and attempt to determine where we are running """
+    global __env__
     hn = socket.gethostname()
     p1 = re.match(r'dt.prd*', hn)
     if p1 is not None:
@@ -82,6 +85,22 @@ def detectRunningSite():
         __env__ = 'TST'
         return __env__
     return __env__
+
+def isEmpty(p):
+    """ check if p is None or empty string """
+    if not p:
+        return True
+    else:
+        return False
+
+def removeCommas(arg):
+    return str(arg).replace(",", "")
+
+def stripCommas(arg):
+    return removeCommas(arg)
+
+def split(s, delimiter=","):
+    return s.split(delimiter)
 
 # def print_x509(pem):
 #     """ Takes a pem file loaded using openssl.crypto """
