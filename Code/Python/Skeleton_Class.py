@@ -6,7 +6,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 __code_desc__ = "Put a description here"
-__code_version__ = 'v1.2.1'
+__code_version__ = 'v2.1.1'
 __code_debug__ = True
 
 ## Standard Libraries
@@ -20,10 +20,7 @@ from pprint import pformat, pprint
 try:
     from classes.BuildingBlocks import State, BaseObject
 except ImportError:
-    try:
-        from .BuildingBlocks import State, BaseObject
-    except ImportError:
-        from BuildingBlocks import State, BaseObject
+    from BuildingBlocks import State, BaseObject
 
 class Skeleton_Class(BaseObject):
 

@@ -3,7 +3,7 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-__code_version__ = 'v1.2.1'
+__code_version__ = 'v2.1.1'
 
 ## Standard Libraries
 import os
