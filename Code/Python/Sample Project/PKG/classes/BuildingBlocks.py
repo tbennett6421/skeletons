@@ -3,14 +3,14 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-__code_version__ = 'v2.0.2'
+__code_version__ = 'v3.1.1'
 
 ## Standard Libraries
 from pprint import pprint
 
 ## Modules
 try:
-    from .Exceptions import ValidationFailedError
+    from classes.Exceptions import ValidationFailedError
 except ImportError:
     from Exceptions import ValidationFailedError
 

@@ -1,6 +1,6 @@
 from __future__ import print_function
 from __future__ import absolute_import
-__code_version__ = 'v2.0.5'
+__code_version__ = 'v3.2.1'
 __env__ = "P2"
 
 ## Standard Libraries
@@ -60,6 +60,13 @@ def configureTLSValidation(disable_verification=False):
     # all else fails, use system
     return True, True
 
+def checkForCSV(arg):
+    """ Check if argument appears to be a csv list. return list or the original item """
+    if ',' in arg:
+        return str(arg).split(',')
+    else:
+        return arg
+
 def detectRunningSite():
     """ Probe the hostname and attempt to determine where we are running """
     global __env__
@@ -92,6 +99,38 @@ def isEmpty(p):
         return True
     else:
         return False
+
+def isString(arg):
+    return isinstance(arg, str)
+
+def isIterableCollection(arg):
+    """
+        Strings are iterable, but generally we don't want to iterate on strings, but collections
+        returns true if iterable and not str
+        false otherwise
+    """
+    b = isString(arg)
+    if not b:
+        try:
+            x = iter(arg)
+            return True
+        except TypeError as te:
+            return False
+    else:
+        return False
+
+def getArgsLikeObject(state=None):
+    """
+        If a state is provided, this will pull the args out and return them,
+        otherwise it constructs a lambda which can be used like an args object
+    """
+    if state is not None:
+        args = state.args
+    else:
+        args = lambda: None
+        args.verbose = 0
+        args.debug = False
+    return args
 
 def removeCommas(arg):
     return str(arg).replace(",", "")

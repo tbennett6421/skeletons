@@ -3,7 +3,7 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-__code_version__ = 'v2.1.1'
+__code_version__ = 'v3.1.1'
 
 ## Standard Libraries
 from pprint import pprint
@@ -11,11 +11,8 @@ from pprint import pprint
 ## Modules
 try:
     from classes.Exceptions import ValidationFailedError
-except ModuleNotFoundError:
-    try:
-        from .Exceptions import ValidationFailedError
-    except ImportError:
-        from Exceptions import ValidationFailedError
+except ImportError:
+    from Exceptions import ValidationFailedError
 
 """
     BaseObject provides a template of useful methods for all classes to inherit

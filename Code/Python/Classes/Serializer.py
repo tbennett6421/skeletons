@@ -14,7 +14,7 @@ from io import BytesIO
 try:
     import numpy as np
     import pandas as pd
-except ModuleNotFoundError:
+except ImportError:
     pass
 
 ## Modules

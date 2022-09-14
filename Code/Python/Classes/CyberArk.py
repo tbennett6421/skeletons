@@ -3,7 +3,7 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-__code_version__ = 'v2.0.1'
+__code_version__ = 'v3.2.1'
 
 ## Standard Libraries
 import time
@@ -15,15 +15,11 @@ from requests.exceptions import HTTPError,SSLError
 
 ## Modules
 try:
-    from classes.Base import askForCredentials
+    from classes.Base import askForCredentials,getArgsLikeObject,isIterableCollection
     from classes.WebClient import WebClient
-except ModuleNotFoundError:
-    try:
-        from .Base import askForCredentials
-        from .WebClient import WebClient
-    except ImportError:
-        from Base import askForCredentials
-        from WebClient import WebClient
+except ImportError:
+    from Base import askForCredentials,getArgsLikeObject,isIterableCollection
+    from WebClient import WebClient
 
 class CyberArk(WebClient):
     """
