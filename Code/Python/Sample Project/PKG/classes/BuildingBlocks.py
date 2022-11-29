@@ -1,12 +1,30 @@
-#!/usr/bin/env python3
+from __future__ import absolute_import, print_function
 
-from __future__ import print_function
-from __future__ import absolute_import
-
-__code_version__ = 'v3.1.1'
+__code_desc__ = "Put a description here"
+__code_version__ = 'v3.3.3'
+__code_debug__ = False
+__code_color_support__ = True
+__code_vsc_support__ = True
 
 ## Standard Libraries
+from logging import getLevelName
 from pprint import pprint
+
+## Third Party libraries
+try:
+    import colorama
+    from termcolor import colored
+    __code_color_support__ = True
+except ImportError:
+    __code_color_support__ = False
+
+try:
+    import debugpy
+    debugpy.listen(5678)
+    debugpy.wait_for_client()
+    __code_vsc_support__ = True
+except (ImportError, SystemExit, RuntimeError) as e:
+    __code_vsc_support__ = False
 
 ## Modules
 try:
@@ -21,18 +39,12 @@ class BaseObject(object):
 
     def __init__(self, state=None, loglevel='INFO'):
 
-        #region: debugging handler
-        if loglevel == "DEBUG":
-            try:
-                import debugpy
-                debugpy.listen(5678)
-                print("Waiting for debugger attach")
-                debugpy.wait_for_client()
-                debugpy.breakpoint()
-                print('break on this line')
-            except ImportError:
-                pass
-        #endregion: debugging handler
+        if __code_color_support__:
+            self._init_colors(True)
+
+        if __code_vsc_support__ and __code_debug__:
+            debugpy.breakpoint()
+            print('break on this line')
 
         self.is_valid = False
         if state is None:
@@ -113,6 +125,43 @@ class BaseObject(object):
 
     def getParam(self, param=None):
         return self.getProp(param)
+
+    def _print_console(self, msg, marker="[?]", level="INFO", fg_color=None, bg_color=None):
+        fmt = "%s %s" % (marker, msg)
+
+        # Checking logging levels
+        acceptable_logging_levels = [
+            "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
+        ]
+        assert str(level).upper() in acceptable_logging_levels
+
+        # Try to log our message to log stream
+        try:
+            ln = getLevelName(level)
+            self.log.log(ln, fmt)
+        except AttributeError:
+            pass
+        except Exception as e:
+            raise e
+
+        # render to stdout
+        if __code_color_support__:
+            print(colored(fmt, fg_color, bg_color))
+        else:
+            print(fmt)
+
+    def _print_verbose(self, msg, marker='[*]'):
+        self._print_console(msg, marker, fg_color='cyan')
+
+    def _print_info(self, msg, marker='[+]'):
+        self._print_console(msg, marker, fg_color='green')
+
+    def _print_error(self, msg, marker='[!]'):
+        self._print_console(msg, marker, fg_color='white', bg_color='on_red')
+
+    def _init_colors(self, b=True):
+        if __code_color_support__ and b:
+            colorama.init()
 
     # def frozen(self):
     #     try:
