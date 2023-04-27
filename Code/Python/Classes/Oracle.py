@@ -3,7 +3,7 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-__code_version__ = 'v2.1.1'
+__code_version__ = 'v2.4.1'
 
 ## Standard Libraries
 import os
@@ -192,8 +192,11 @@ class Oracle(BaseObject):
         self.lastPrepDict = prep
         return query, prep
 
-    def doQuery(self, query, prep):
-        self.lastResult = self.cursor.execute(query, prep)
+    def doQuery(self, query, prep=None):
+        if prep is None:
+            self.lastResult = self.cursor.execute(query)
+        else:
+            self.lastResult = self.cursor.execute(query, prep)
         self.lastResult.rowfactory = self.rowfactoryAsDict(self.lastResult)
         self.lastRows = self.lastResult.fetchall()
         return self.lastRows
@@ -245,16 +248,14 @@ class AvailityOracle(Oracle):
             ca_safe=ca_safe,
             ca_object=ca_object
         )
-        cyberark_object.doRequest()
+        cyberark_object.fetch()
         if debug:
             maltego_response_object.addUIMessage("CyberArk App ID: %s" % (str(ca_appid)), UIM_INFORM )
             maltego_response_object.addUIMessage("CyberArk Safe: %s" % (str(ca_safe)), UIM_INFORM )
             maltego_response_object.addUIMessage("CyberArk Object: %s" % (str(ca_object)), UIM_INFORM )
             maltego_response_object.addUIMessage("CyberArk.ready()?: %s" % (str(cyberark_object.ready())), UIM_INFORM )
-        # Setup the database params
-        db_username = ca_object
-        db_password = cyberark_object.getPassword()
 
+        db_username, db_password = cyberark_object.getCredentials()
         if debug:
             maltego_response_object.addUIMessage("Oracle DB Auth Mechanism: %s" % (str(db_auth)), UIM_INFORM )
             maltego_response_object.addUIMessage("Oracle DB Host: %s" % (str(db_host)), UIM_INFORM )

@@ -4,7 +4,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 __code_desc__ = "Encapsulate elasticsearch-dsl library"
-__code_version__ = 'v4.1.1'
+__code_version__ = 'v4.2.1'
 __code_debug__ = False
 
 ## Standard Libraries

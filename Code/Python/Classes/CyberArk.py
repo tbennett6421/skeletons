@@ -3,12 +3,11 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-__code_version__ = 'v3.2.1'
+__code_version__ = 'v4.1.3'
 
 ## Standard Libraries
 import time
 from urllib.parse import quote
-from getpass import getpass
 
 ## Third-Party
 from requests.exceptions import HTTPError,SSLError
@@ -20,6 +19,130 @@ try:
 except ImportError:
     from Base import askForCredentials,getArgsLikeObject,isIterableCollection
     from WebClient import WebClient
+
+class CyberArkResponse(object):
+
+    def __init__(self, properties):
+        self.vault = {}
+        self.epv_base_url = aca.epv_base_url
+        self.ccp_base_url = aca.ccp_base_url
+        self.ConstructVault(properties)
+
+    def _vaultGet(self, key):
+        """ Attempt to access key, handling errors. """
+        try:
+            return self.vault[str(key)]
+        except KeyError:
+            return None
+
+    def _vaultInit(self, key, initargs):
+        """ This is used for creating the vault from a response argument. """
+        try:
+            key = str(key)
+            self.vault[key] = initargs[key]
+            return True
+        except KeyError:
+            return False
+
+    def _vaultAdd(self, key, value):
+        """ This is used for arbitrarily adding kv args. """
+        try:
+            self.vault[str(key)] = value
+            return True
+        except Exception:
+            return False
+
+    def ConstructVault(self, initargs):
+        for k,v in initargs.items():
+            self._vaultInit(k, initargs)
+
+    def getFolder(self):
+        return self._vaultGet("Folder")
+
+    def getName(self):
+        return self._vaultGet("Name")
+
+    def getDeviceType(self):
+        return self._vaultGet("DeviceType")
+
+    def getPassword(self):
+        return self._vaultGet("Content")
+
+    def getPolicyID(self):
+        return self._vaultGet("PolicyID")
+
+    def getSafe(self):
+        return self._vaultGet("Safe")
+
+    def getUsername(self):
+        return self._vaultGet("UserName")
+
+    def getCredentials(self):
+        usernm = self.getUsername()
+        passwd = self.getPassword()
+        return usernm, passwd
+
+    def getVault(self):
+        return self.vault
+
+    def setFolder(self, value):
+        return self._vaultAdd("Folder", value)
+
+    def setName(self, value):
+        return self._vaultAdd("Name", value)
+
+    def setDeviceType(self, value):
+        return self._vaultAdd("DeviceType", value)
+
+    def setPassword(self, value):
+        return self._vaultAdd("Content", value)
+
+    def setPolicyID(self, value):
+        return self._vaultAdd("PolicyID", value)
+
+    def setSafe(self, value):
+        return self._vaultAdd("Safe", value)
+
+    def setUsername(self, value):
+        return self._vaultAdd("UserName", value)
+
+class CCPResponse(CyberArkResponse):
+    """ Accepts CCP RJSN as init """
+    def __init__(self, properties):
+        self.initargs = {}
+        for k,v in properties.items():
+            k = str(k).replace('-', '')
+            self.initargs[k] = v
+        super().__init__(self.initargs)
+
+class EPVResponse(CyberArkResponse):
+    """ Accepts EPV respJSON['accounts'][0] as init """
+    def __init__(self, account, auth_token):
+        self.accountid = account["AccountID"]
+        self.initargs = {"AccountID": self.accountid}
+        properties = account["Properties"]
+        for prop in properties:
+            k = str(prop["Key"]).replace('-', '')
+            self.initargs[k] = prop["Value"]
+        super().__init__(self.initargs)
+        self.auth_token = auth_token
+        passwd = self.EPVGetPassword(self.accountid)
+        self.setPassword(passwd)
+
+    def EPVGetPassword(self, aid):
+        try:
+            password_url = "%s/%s/%s" % (self.epv_base_url, aid, "Credentials")
+            headers = {
+                "Authorization": self.auth_token,
+            }
+            wc = WebClient()
+            rcode, resp = wc.get(password_url, headers=headers)
+            self.password = resp.text
+            if self.password == '':
+                self.password = None
+            return self.password
+        except:
+            raise
 
 class CyberArk(WebClient):
     """
@@ -54,10 +177,10 @@ class CyberArk(WebClient):
         self.is_valid = False
         self.auth_token = None
         self.validation_keys = [
-            'ccp_base_url', 'ca_appid', 'ca_safe', 'ca_object', 'epv_base_url', 'epv_logon_url'
+            'ccp_base_url', 'ca_appid', 'ca_safe', 'ca_object', 'epv_base_url', 'epv_logon_url',
         ]
         none_keys = list(self.validation_keys)
-        none_keys = none_keys + ['auth_token', 'auth_username', 'auth_password',]
+        none_keys = none_keys + ['auth_token', 'auth_username', 'auth_password', 'vault', 'vault_method']
         for k in none_keys:
             setattr(self, k, None)
 
@@ -151,47 +274,23 @@ class CyberArk(WebClient):
         except Exception as e:
             raise e
 
-    def setName(self, name=None):
-        self.name = name
-
-    def setUsername(self, username=None):
-        self.username = username
-
-    def setPassword(self, password=None):
-        self.password = password
-
     def setAuthUsername(self, username=None):
         self.auth_username = username
 
     def setAuthPassword(self, password=None):
         self.auth_password = password
 
-    def getName(self, throw=True):
+    def getAuthUsername(self):
         try:
-            return self.name
+            return self.auth_username
         except Exception:
-            if throw:
-                raise
-            else:
-                return None
+            return None
 
-    def getUsername(self, throw=True):
+    def getAuthPassword(self):
         try:
-            return self.username
+            return self.auth_password
         except Exception:
-            if throw:
-                raise
-            else:
-                return None
-
-    def getPassword(self, throw=True):
-        try:
-            return self.password
-        except Exception:
-            if throw:
-                raise
-            else:
-                return None
+            return None
 
     #endregion: public methods
 
@@ -254,9 +353,10 @@ class CyberArk(WebClient):
                 params = self.buildParams()
                 rcode, resp = self.get(url=self.ccp_base_url, params=params)
                 rjsn = resp.json()
-                self.setName(name=self.CCPGetName(rjsn))
-                self.setUsername(username=self.CCPGetUsername(rjsn))
-                self.setPassword(password=self.CCPGetPassword(rjsn))
+                ccpr = CCPResponse(properties=rjsn)
+                self.vault_method = "CCP"
+                self.vault = ccpr
+                self.is_valid = True
             except Exception:
                 raise
 
@@ -271,6 +371,17 @@ class CyberArk(WebClient):
             _ = self.ready(throw=True, message="Not ready(), after calling self.validate()")
             return self.fetchCredentialsViaEPV(username=username, password=password)
         else:
+
+            if not self.auth_username or not self.auth_password:
+                if not username or not password:
+                    # If no creds; Ask for creds
+                    username, password = askForCredentials("Please provide credentials to connect to EPV")
+                    self.setAuthUsername(username)
+                    self.setAuthPassword(password)
+                else:
+                    # If creds; set/persist to object
+                    self.setAuthUsername(username)
+                    self.setAuthPassword(password)
 
             # Get a token if needed
             if not self.auth_token:
@@ -290,64 +401,12 @@ class CyberArk(WebClient):
                 }
                 rcode, resp = self.get(account_url, headers=headers, params=get_params)
                 respJSON = resp.json()
+                account = respJSON['accounts'][0]
+                self.vault_method = "EPV"
+                self.vault = EPVResponse(account, auth_token=self.auth_token)
                 self.is_valid = True
-                # at this point we should either have thrown httperror or not.
-                # set attributes if we have not thrown httperror
-                self.setName(name=self.EPVGetName(respJSON))
-                self.setUsername(username=self.EPVGetUsername(respJSON))
-                self.setPassword(password=self.EPVGetPassword(respJSON))
             except:
                 raise
-
-    def CCPGetName(self, response):
-        try:
-            return response['Name']
-        except KeyError:
-            return None
-
-    def CCPGetUsername(self, response):
-        try:
-            return response['UserName']
-        except KeyError:
-            return None
-
-    def CCPGetPassword(self, response):
-        try:
-            return response['Content']
-        except KeyError:
-            return None
-
-    def EPVGetName(self, response):
-        try:
-            props = response['accounts'][0]['Properties']
-            for item in props:
-                if item['Key'] == "Name":
-                    return item["Value"]
-        except KeyError:
-            return None
-
-    def EPVGetUsername(self, response):
-        try:
-            props = response['accounts'][0]['Properties']
-            for item in props:
-                if item['Key'] == "UserName":
-                    return item["Value"]
-        except KeyError:
-            return None
-
-    def EPVGetPassword(self, response):
-        # Get AccountID
-        aid = response['accounts'][0]['AccountID']
-        try:
-            password_url = "%s/%s/%s" % (self.epv_base_url, aid, "Credentials")
-            headers = {
-                "Authorization": self.auth_token,
-            }
-            rcode, resp = self.get(password_url, headers=headers)
-            self.password = resp.text
-            return self.password
-        except:
-            raise
 
     def getCCPBaseUrl(self):
         return self.ccp_base_url
@@ -394,4 +453,4 @@ def main():
     pass
 
 if __name__=="__main__":
-    main()
+    pass
